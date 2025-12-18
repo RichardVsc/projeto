@@ -31,6 +31,9 @@ class AppExceptionHandler extends ExceptionHandler
         return $response->withHeader('Server', 'Hyperf')->withStatus(500)->withBody(new SwooleStream('Internal Server Error.'));
     }
 
+    /**
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+     */
     public function isValid(Throwable $throwable): bool
     {
         return true;
