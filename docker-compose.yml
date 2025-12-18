@@ -1,0 +1,45 @@
+services:
+  app:
+    build:
+      context: ./docker/php
+      dockerfile: Dockerfile
+    container_name: hyperf-app
+    working_dir: /var/www/project
+    volumes:
+      - ./src:/var/www/project
+    ports:
+      - "9502:9501"
+    depends_on:
+      - db
+      - redis
+    command: tail -f /dev/null
+    networks:
+      - hyperf
+
+  db:
+    image: postgres:13
+    container_name: postgres-db
+    environment:
+      POSTGRES_USER: hyperf
+      POSTGRES_PASSWORD: secret
+      POSTGRES_DB: hyperf_db
+    ports:
+      - 5432:5432
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - hyperf
+
+  redis:
+    image: redis:alpine
+    container_name: redis-hyperf
+    ports:
+      - 6381:6379
+    networks:
+      - hyperf
+
+networks:
+  hyperf:
+
+volumes:
+  pgdata:
