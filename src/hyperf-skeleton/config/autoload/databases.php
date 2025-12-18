@@ -13,15 +13,16 @@ use function Hyperf\Support\env;
 
 return [
     'default' => [
-        'driver' => env('DB_DRIVER', 'mysql'),
+        'driver' => env('DB_DRIVER', 'pgsql'),
         'host' => env('DB_HOST', 'localhost'),
         'database' => env('DB_DATABASE', 'hyperf'),
-        'port' => env('DB_PORT', 3306),
+        'port' => env('DB_PORT', 5432),
         'username' => env('DB_USERNAME', 'root'),
         'password' => env('DB_PASSWORD', ''),
         'charset' => env('DB_CHARSET', 'utf8'),
         'collation' => env('DB_COLLATION', 'utf8_unicode_ci'),
         'prefix' => env('DB_PREFIX', ''),
+        'schema' => 'public',
         'pool' => [
             'min_connections' => 1,
             'max_connections' => 10,
