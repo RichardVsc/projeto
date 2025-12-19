@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace App\Domain\Wallet;
+namespace App\Domain\User;
 
-use App\Domain\Wallet\Exception\InvalidWalletIdException;
+use App\Domain\User\Exception\InvalidWalletIdException;
 
 final class WalletId
 {

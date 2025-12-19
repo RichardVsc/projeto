@@ -9,113 +9,137 @@ use PHPUnit\Framework\TestCase;
 
 final class MoneyTest extends TestCase
 {
-    public function test_it_can_be_created_from_int(): void
+    public function test_can_be_created_from_cents(): void
     {
         $positive = Money::fromCents(100);
-        $zero     = Money::fromCents(0);
+        $zero = Money::fromCents(0);
         $negative = Money::fromCents(-50);
 
-        $this->assertSame(100, $positive->toInt(), 'Positive value failed');
-        $this->assertSame(0, $zero->toInt(), 'Zero value failed');
-        $this->assertSame(-50, $negative->toInt(), 'Negative value failed');
+        $this->assertSame(100, $positive->toInt());
+        $this->assertSame(0, $zero->toInt());
+        $this->assertSame(-50, $negative->toInt());
     }
 
-    public function test_it_is_immutable(): void
+    public function test_is_immutable(): void
     {
-        $original   = Money::fromCents(100);
-        $addResult  = $original->add(Money::fromCents(50));
-        $subResult  = $original->subtract(Money::fromCents(30));
+        $original = Money::fromCents(100);
+        $added = $original->add(Money::fromCents(50));
+        $subtracted = $original->subtract(Money::fromCents(30));
 
+        // Original não mudou
         $this->assertSame(100, $original->toInt());
-        $this->assertSame(150, $addResult->toInt());
-        $this->assertSame(70, $subResult->toInt());
-
-        $this->assertNotSame($original, $addResult);
-        $this->assertNotSame($original, $subResult);
-        $this->assertNotSame($addResult, $subResult);
+        
+        // Novas instâncias criadas
+        $this->assertSame(150, $added->toInt());
+        $this->assertSame(70, $subtracted->toInt());
+        
+        // São objetos diferentes
+        $this->assertNotSame($original, $added);
+        $this->assertNotSame($original, $subtracted);
+        $this->assertNotSame($added, $subtracted);
     }
 
-    public function test_it_can_be_positive_zero_or_negative(): void
+    public function test_can_identify_positive_zero_and_negative(): void
     {
-        $cases = [
-            ['money' => Money::fromCents(10), 'state' => 'positive'],
-            ['money' => Money::fromCents(0),  'state' => 'zero'],
-            ['money' => Money::fromCents(-10), 'state' => 'negative'],
-        ];
+        $positive = Money::fromCents(10);
+        $zero = Money::fromCents(0);
+        $negative = Money::fromCents(-10);
 
-        foreach ($cases as $case) {
-            $money = $case['money'];
-            $state = $case['state'];
+        $this->assertTrue($positive->isPositive());
+        $this->assertFalse($positive->isZero());
+        $this->assertFalse($positive->isNegative());
 
-            $this->assertSame($state === 'positive', $money->isPositive());
-            $this->assertSame($state === 'negative', $money->isNegative());
-            $this->assertSame($state === 'zero', $money->isZero());
-        }
+        $this->assertFalse($zero->isPositive());
+        $this->assertTrue($zero->isZero());
+        $this->assertFalse($zero->isNegative());
+
+        $this->assertFalse($negative->isPositive());
+        $this->assertFalse($negative->isZero());
+        $this->assertTrue($negative->isNegative());
     }
 
-    public function test_it_adds_money_correctly(): void
+    public function test_adds_money_correctly(): void
     {
-        $cases = [
-            ['a' => Money::fromCents(100), 'b' => Money::fromCents(50),  'expected' => 150],
-            ['a' => Money::fromCents(0),   'b' => Money::fromCents(50),  'expected' => 50],
-            ['a' => Money::fromCents(-20), 'b' => Money::fromCents(50),  'expected' => 30],
-            ['a' => Money::fromCents(100), 'b' => Money::fromCents(-30), 'expected' => 70],
-            ['a' => Money::fromCents(0),   'b' => Money::fromCents(0),   'expected' => 0],
-        ];
-
-        foreach ($cases as $case) {
-            $result = $case['a']->add($case['b']);
-            $this->assertSame($case['expected'], $result->toInt());
-        }
+        $this->assertSame(150, Money::fromCents(100)->add(Money::fromCents(50))->toInt());
+        $this->assertSame(50, Money::fromCents(0)->add(Money::fromCents(50))->toInt());
+        $this->assertSame(30, Money::fromCents(-20)->add(Money::fromCents(50))->toInt());
+        $this->assertSame(70, Money::fromCents(100)->add(Money::fromCents(-30))->toInt());
+        $this->assertSame(0, Money::fromCents(0)->add(Money::fromCents(0))->toInt());
     }
 
-    public function test_it_subtracts_money_correctly(): void
+    public function test_subtracts_money_correctly(): void
     {
-        $cases = [
-            ['a' => Money::fromCents(100), 'b' => Money::fromCents(50),  'expected' => 50],
-            ['a' => Money::fromCents(0),   'b' => Money::fromCents(50),  'expected' => -50],
-            ['a' => Money::fromCents(-20), 'b' => Money::fromCents(50),  'expected' => -70],
-            ['a' => Money::fromCents(100), 'b' => Money::fromCents(-30), 'expected' => 130],
-            ['a' => Money::fromCents(0),   'b' => Money::fromCents(0),   'expected' => 0],
-        ];
-
-        foreach ($cases as $case) {
-            $result = $case['a']->subtract($case['b']);
-            $this->assertSame($case['expected'], $result->toInt());
-        }
+        $this->assertSame(50, Money::fromCents(100)->subtract(Money::fromCents(50))->toInt());
+        $this->assertSame(-50, Money::fromCents(0)->subtract(Money::fromCents(50))->toInt());
+        $this->assertSame(-70, Money::fromCents(-20)->subtract(Money::fromCents(50))->toInt());
+        $this->assertSame(130, Money::fromCents(100)->subtract(Money::fromCents(-30))->toInt());
+        $this->assertSame(0, Money::fromCents(0)->subtract(Money::fromCents(0))->toInt());
     }
 
-    public function test_it_handles_large_values(): void
+    public function test_handles_large_values(): void
     {
         $large = Money::fromCents(PHP_INT_MAX - 1);
-        $small = Money::fromCents(1);
-        $result = $large->add($small);
+        $result = $large->add(Money::fromCents(1));
         $this->assertSame(PHP_INT_MAX, $result->toInt());
 
         $largeNegative = Money::fromCents(PHP_INT_MIN + 1);
-        $smallNegative = Money::fromCents(1);
-        $resultNegative = $largeNegative->subtract($smallNegative);
+        $resultNegative = $largeNegative->subtract(Money::fromCents(1));
         $this->assertSame(PHP_INT_MIN, $resultNegative->toInt());
     }
 
-    public function test_comparisons(): void
+    public function test_equals_comparison(): void
     {
-        $cases = [
-            ['a' => Money::fromCents(50),  'b' => Money::fromCents(100), 'less' => true,  'greater' => false, 'equals' => false],
-            ['a' => Money::fromCents(100), 'b' => Money::fromCents(50),  'less' => false, 'greater' => true,  'equals' => false],
-            ['a' => Money::fromCents(100), 'b' => Money::fromCents(100), 'less' => false, 'greater' => false, 'equals' => true],
-            ['a' => Money::fromCents(-10), 'b' => Money::fromCents(0),   'less' => true,  'greater' => false, 'equals' => false],
-            ['a' => Money::fromCents(0),   'b' => Money::fromCents(-10), 'less' => false, 'greater' => true,  'equals' => false],
-            ['a' => Money::fromCents(0),   'b' => Money::fromCents(0),   'less' => false, 'greater' => false, 'equals' => true],
-        ];
+        $money100a = Money::fromCents(100);
+        $money100b = Money::fromCents(100);
+        $money50 = Money::fromCents(50);
 
-        foreach ($cases as $case) {
-            $a = $case['a'];
-            $b = $case['b'];
+        $this->assertTrue($money100a->equals($money100b));
+        $this->assertFalse($money100a->equals($money50));
+        $this->assertTrue(Money::fromCents(0)->equals(Money::fromCents(0)));
+        $this->assertTrue(Money::fromCents(-10)->equals(Money::fromCents(-10)));
+    }
 
-            $this->assertSame($case['less'],    $a->isLessThan($b));
-            $this->assertSame($case['greater'], $a->isGreaterThan($b));
-            $this->assertSame($case['equals'],  $a->equals($b));
-        }
+    public function test_is_greater_than_comparison(): void
+    {
+        $this->assertTrue(Money::fromCents(100)->isGreaterThan(Money::fromCents(50)));
+        $this->assertFalse(Money::fromCents(50)->isGreaterThan(Money::fromCents(100)));
+        $this->assertFalse(Money::fromCents(100)->isGreaterThan(Money::fromCents(100))); // igual não é maior
+        $this->assertTrue(Money::fromCents(0)->isGreaterThan(Money::fromCents(-10)));
+        $this->assertFalse(Money::fromCents(-10)->isGreaterThan(Money::fromCents(0)));
+    }
+
+    public function test_is_greater_than_or_equal_comparison(): void
+    {
+        $this->assertTrue(Money::fromCents(100)->isGreaterThanOrEqual(Money::fromCents(50)));
+        $this->assertTrue(Money::fromCents(100)->isGreaterThanOrEqual(Money::fromCents(100))); // ✅ igual também passa
+        $this->assertFalse(Money::fromCents(50)->isGreaterThanOrEqual(Money::fromCents(100)));
+        $this->assertTrue(Money::fromCents(0)->isGreaterThanOrEqual(Money::fromCents(-10)));
+        $this->assertTrue(Money::fromCents(0)->isGreaterThanOrEqual(Money::fromCents(0)));
+    }
+
+    public function test_is_less_than_comparison(): void
+    {
+        $this->assertTrue(Money::fromCents(50)->isLessThan(Money::fromCents(100)));
+        $this->assertFalse(Money::fromCents(100)->isLessThan(Money::fromCents(50)));
+        $this->assertFalse(Money::fromCents(100)->isLessThan(Money::fromCents(100))); // igual não é menor
+        $this->assertTrue(Money::fromCents(-10)->isLessThan(Money::fromCents(0)));
+        $this->assertFalse(Money::fromCents(0)->isLessThan(Money::fromCents(-10)));
+    }
+
+    public function test_is_less_than_or_equal_comparison(): void
+    {
+        $this->assertTrue(Money::fromCents(50)->isLessThanOrEqual(Money::fromCents(100)));
+        $this->assertTrue(Money::fromCents(100)->isLessThanOrEqual(Money::fromCents(100))); // ✅ igual também passa
+        $this->assertFalse(Money::fromCents(100)->isLessThanOrEqual(Money::fromCents(50)));
+        $this->assertTrue(Money::fromCents(-10)->isLessThanOrEqual(Money::fromCents(0)));
+        $this->assertTrue(Money::fromCents(0)->isLessThanOrEqual(Money::fromCents(0)));
+    }
+
+    public function test_comparison_with_negative_values(): void
+    {
+        $this->assertTrue(Money::fromCents(-100)->isLessThan(Money::fromCents(-50)));
+        $this->assertFalse(Money::fromCents(-50)->isLessThan(Money::fromCents(-100)));
+        $this->assertTrue(Money::fromCents(-50)->isGreaterThan(Money::fromCents(-100)));
+        $this->assertFalse(Money::fromCents(-100)->isGreaterThan(Money::fromCents(-50)));
     }
 }

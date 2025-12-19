@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Domain\Wallet\Exception;
+namespace App\Domain\User\Exception;
 
 use DomainException;
 

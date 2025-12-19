@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace App\Domain\Wallet;
+namespace App\Domain\User;
 
-enum WalletType
+enum UserType
 {
     case USER;
     case MERCHANT;

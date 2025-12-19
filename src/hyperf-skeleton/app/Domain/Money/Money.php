@@ -53,9 +53,19 @@ final class Money
         return $this->amount < $other->amount;
     }
 
+    public function isLessThanOrEqual(Money $other): bool
+    {
+        return $this->amount <= $other->amount;
+    }
+
     public function isGreaterThan(Money $other): bool
     {
         return $this->amount > $other->amount;
+    }
+
+    public function isGreaterThanOrEqual(Money $other): bool
+    {
+        return $this->amount >= $other->amount;
     }
 
     public function equals(Money $other): bool
