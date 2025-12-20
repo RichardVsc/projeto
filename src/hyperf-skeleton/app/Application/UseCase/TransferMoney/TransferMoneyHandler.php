@@ -148,7 +148,7 @@ final class TransferMoneyHandler
     {
         return new TransferMoneyResponse(
             $transfer->getId()->getValue(),
-            $transfer->getStatus()->getLabel(),
+            $transfer->getStatus()->value,
             $transfer->getFailureReason()
         );
     }
@@ -157,7 +157,7 @@ final class TransferMoneyHandler
     {
         return new TransferMoneyResponse(
             $transfer->getId()->getValue(),
-            $transfer->getStatus()->getLabel(),
+            $transfer->getStatus()->value,
             null
         );
     }
