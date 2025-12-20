@@ -12,31 +12,35 @@ final class Email
 
     private function __construct(string $email)
     {
-        $email = trim($email);
+        $trimmed = trim($email);
 
-        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            throw InvalidEmailException::invalidFormat();
+        if ($trimmed === '') {
+            throw InvalidEmailException::empty();
         }
 
-        $this->value = $email;
+        if (!filter_var($trimmed, FILTER_VALIDATE_EMAIL)) {
+            throw InvalidEmailException::invalidFormat($email);
+        }
+
+        $this->value = strtolower($trimmed);
     }
 
-    public static function fromString(string $email): self
+    public static function fromString(string $value): self
     {
-        return new self($email);
-    }
-
-    public function __toString(): string
-    {
-        return $this->value;
+        return new self($value);
     }
 
     public function equals(Email $other): bool
     {
-        return $this->value === (string) $other;
+        return $this->value === $other->value;
     }
 
     public function getValue(): string
+    {
+        return $this->value;
+    }
+
+    public function __toString(): string
     {
         return $this->value;
     }

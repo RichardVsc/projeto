@@ -11,12 +11,10 @@ final class Wallet
 {
     private WalletId $id;
     private Money $balance;
-    private UserType $type;
 
     public function __construct(
         WalletId $id,
-        Money $balance,
-        UserType $type
+        Money $balance
     ) {
         if ($balance->isNegative()) {
             throw NegativeWalletBalanceException::negativeBalance();
@@ -24,7 +22,6 @@ final class Wallet
 
         $this->id = $id;
         $this->balance = $balance;
-        $this->type = $type;
     }
 
     public function getId(): WalletId
@@ -35,16 +32,6 @@ final class Wallet
     public function getBalance(): Money
     {
         return $this->balance;
-    }
-
-    public function getType(): UserType
-    {
-        return $this->type;
-    }
-
-    public function canSendMoney(): bool
-    {
-        return $this->type->canSend();
     }
 
     public function hasBalance(Money $amount): bool
@@ -58,8 +45,7 @@ final class Wallet
         
         return new self(
             $this->id,
-            $newBalance,
-            $this->type
+            $newBalance
         );
     }
 
@@ -73,8 +59,7 @@ final class Wallet
         
         return new self(
             $this->id,
-            $newBalance,
-            $this->type
+            $newBalance
         );
     }
 }

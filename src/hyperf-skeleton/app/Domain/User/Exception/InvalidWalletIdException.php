@@ -12,4 +12,9 @@ final class InvalidWalletIdException extends DomainException
     {
         return new self('WalletId cannot be empty.');
     }
+
+    public static function invalidFormat(): self
+    {
+        return new self('Invalid WalletId format.');
+    }
 }

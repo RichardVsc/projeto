@@ -5,44 +5,36 @@ declare(strict_types=1);
 namespace App\Domain\User;
 
 use App\Domain\Money\Money;
-use App\Domain\User\Exception\NegativeWalletBalanceException;
+use App\Domain\User\Exception\InvalidUserException;
 use App\Domain\User\Exception\UserCannotSendMoneyException;
 use App\Domain\User\Exception\UserInsufficientFundsException;
 
 final class User
 {
     private UserId $id;
-    private string $name;
-    private Email $email;
     private UserType $type;
-    private Wallet $wallet;
+    private string $name;
     private DocumentNumber $document;
+    private Email $email;
+    private HashedPassword $password;
+    private Wallet $wallet;
 
-    private function __construct(
+    public function __construct(
         UserId $id,
-        string $name,
-        Email $email,
         UserType $type,
-        Wallet $wallet,
-        DocumentNumber $document
+        string $name,
+        DocumentNumber $document,
+        Email $email,
+        HashedPassword $password,
+        Wallet $wallet
     ) {
         $this->id = $id;
-        $this->name = $name;
-        $this->email = $email;
         $this->type = $type;
+        $this->name = $this->assertValidName($name);;
         $this->document = $document;
+        $this->email = $email;
+        $this->password = $password;
         $this->wallet = $wallet;
-    }
-
-    public static function create(
-        UserId $id,
-        string $name,
-        Email $email,
-        UserType $type,
-        Wallet $wallet,
-        DocumentNumber $document
-    ): self {
-        return new self($id, $name, $email, $type, $wallet, $document);
     }
 
     public function getId(): UserId
@@ -50,9 +42,19 @@ final class User
         return $this->id;
     }
 
+    public function getType(): UserType
+    {
+        return $this->type;
+    }
+
     public function getName(): string
     {
         return $this->name;
+    }
+
+    public function getDocument(): DocumentNumber
+    {
+        return $this->document;
     }
 
     public function getEmail(): Email
@@ -60,19 +62,14 @@ final class User
         return $this->email;
     }
 
-    public function getType(): UserType
-    {
-        return $this->type;
-    }
-
     public function getWallet(): Wallet
     {
         return $this->wallet;
     }
 
-    public function getDocument(): DocumentNumber
+    public function verifyPassword(string $plainText): bool
     {
-        return $this->document;
+        return $this->password->verify($plainText);
     }
 
     public function canSendMoney(): bool
@@ -85,16 +82,22 @@ final class User
         return $this->wallet->hasBalance($amount);
     }
 
-    public function creditWallet(Money $amount): void
+    public function creditWallet(Money $amount): self
     {
-        if (!$this->canSendMoney()) {
-            throw new UserCannotSendMoneyException();
-        }
+        $newWallet = $this->wallet->withAddedBalance($amount);
 
-        $this->wallet = $this->wallet->withAddedBalance($amount);
+        return new self(
+            $this->id,
+            $this->type,
+            $this->name,
+            $this->document,
+            $this->email,
+            $this->password,
+            $newWallet
+        );
     }
 
-    public function debitWallet(Money $amount): void
+    public function debitWallet(Money $amount): self
     {
         if (!$this->canSendMoney()) {
             throw new UserCannotSendMoneyException();
@@ -104,6 +107,35 @@ final class User
             throw UserInsufficientFundsException::notEnoughBalance();
         }
 
-        $this->wallet = $this->wallet->withDeductedBalance($amount);
+        $newWallet = $this->wallet->withDeductedBalance($amount);
+
+        return new self(
+            $this->id,
+            $this->type,
+            $this->name,
+            $this->document,
+            $this->email,
+            $this->password,
+            $newWallet
+        );
+    }
+
+    private function assertValidName(string $name): string
+    {
+        $trimmed = trim($name);
+
+        if ($trimmed === '') {
+            throw InvalidUserException::emptyName();
+        }
+
+        if (mb_strlen($trimmed) < 3) {
+            throw InvalidUserException::nameTooShort();
+        }
+
+        if (mb_strlen($trimmed) > 255) {
+            throw InvalidUserException::nameTooLong();
+        }
+
+        return $trimmed;
     }
 }

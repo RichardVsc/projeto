@@ -12,4 +12,9 @@ final class InvalidUserIdException extends DomainException
     {
         return new self('UserId cannot be empty.');
     }
+
+    public static function invalidFormat(): self
+    {
+        return new self('Invalid UserId format.');
+    }
 }

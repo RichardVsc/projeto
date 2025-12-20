@@ -19,7 +19,13 @@ final class DocumentNumber
 
     public static function cpf(string $value): self
     {
-        $cleanValue = preg_replace('/\D/', '', $value);
+        $trimmed = trim($value);
+
+        if ($trimmed === '') {
+            throw InvalidDocumentNumberException::empty();
+        }
+
+        $cleanValue = preg_replace('/\D/', '', $trimmed);
 
         if (!self::isValidCpf($cleanValue)) {
             throw InvalidDocumentNumberException::invalidCpf($value);
@@ -30,7 +36,13 @@ final class DocumentNumber
 
     public static function cnpj(string $value): self
     {
-        $cleanValue = preg_replace('/\D/', '', $value);
+        $trimmed = trim($value);
+
+        if ($trimmed === '') {
+            throw InvalidDocumentNumberException::empty();
+        }
+
+        $cleanValue = preg_replace('/\D/', '', $trimmed);
 
         if (!self::isValidCnpj($cleanValue)) {
             throw InvalidDocumentNumberException::invalidCnpj($value);
@@ -49,9 +61,31 @@ final class DocumentNumber
         return $this->type;
     }
 
+    public function formatted(): string
+    {
+        return match ($this->type) {
+            DocumentType::CPF => sprintf(
+                '%s.%s.%s-%s',
+                substr($this->value, 0, 3),
+                substr($this->value, 3, 3),
+                substr($this->value, 6, 3),
+                substr($this->value, 9, 2)
+            ),
+            DocumentType::CNPJ => sprintf(
+                '%s.%s.%s/%s-%s',
+                substr($this->value, 0, 2),
+                substr($this->value, 2, 3),
+                substr($this->value, 5, 3),
+                substr($this->value, 8, 4),
+                substr($this->value, 12, 2)
+            ),
+        };
+    }
+
     public function equals(DocumentNumber $other): bool
     {
-        return $this->value === $other->value;
+        return $this->value === $other->value
+            && $this->type === $other->type;
     }
 
     private static function isValidCpf(string $cpf): bool
@@ -82,21 +116,26 @@ final class DocumentNumber
 
         $lengths = [12, 13];
         $weights = [
-            [5,4,3,2,9,8,7,6,5,4,3,2],
-            [6,5,4,3,2,9,8,7,6,5,4,3,2]
+            [5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2],
+            [6, 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2]
         ];
 
-        foreach ($lengths as $k => $t) {
+        foreach ($lengths as $index => $length) {
             $sum = 0;
-            for ($i = 0; $i < $t; $i++) {
-                $sum += (int)$cnpj[$i] * $weights[$k][$i];
+            for ($i = 0; $i < $length; $i++) {
+                $sum += (int)$cnpj[$i] * $weights[$index][$i];
             }
             $digit = ($sum % 11) < 2 ? 0 : 11 - ($sum % 11);
-            if ((int)$cnpj[$t] !== $digit) {
+            if ((int)$cnpj[$length] !== $digit) {
                 return false;
             }
         }
 
         return true;
+    }
+
+    public function __toString(): string
+    {
+        return $this->value;
     }
 }

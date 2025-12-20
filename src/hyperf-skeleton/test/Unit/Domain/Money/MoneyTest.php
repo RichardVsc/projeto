@@ -26,14 +26,11 @@ final class MoneyTest extends TestCase
         $added = $original->add(Money::fromCents(50));
         $subtracted = $original->subtract(Money::fromCents(30));
 
-        // Original não mudou
         $this->assertSame(100, $original->toInt());
         
-        // Novas instâncias criadas
         $this->assertSame(150, $added->toInt());
         $this->assertSame(70, $subtracted->toInt());
         
-        // São objetos diferentes
         $this->assertNotSame($original, $added);
         $this->assertNotSame($original, $subtracted);
         $this->assertNotSame($added, $subtracted);
@@ -103,7 +100,7 @@ final class MoneyTest extends TestCase
     {
         $this->assertTrue(Money::fromCents(100)->isGreaterThan(Money::fromCents(50)));
         $this->assertFalse(Money::fromCents(50)->isGreaterThan(Money::fromCents(100)));
-        $this->assertFalse(Money::fromCents(100)->isGreaterThan(Money::fromCents(100))); // igual não é maior
+        $this->assertFalse(Money::fromCents(100)->isGreaterThan(Money::fromCents(100)));
         $this->assertTrue(Money::fromCents(0)->isGreaterThan(Money::fromCents(-10)));
         $this->assertFalse(Money::fromCents(-10)->isGreaterThan(Money::fromCents(0)));
     }
@@ -111,7 +108,7 @@ final class MoneyTest extends TestCase
     public function test_is_greater_than_or_equal_comparison(): void
     {
         $this->assertTrue(Money::fromCents(100)->isGreaterThanOrEqual(Money::fromCents(50)));
-        $this->assertTrue(Money::fromCents(100)->isGreaterThanOrEqual(Money::fromCents(100))); // ✅ igual também passa
+        $this->assertTrue(Money::fromCents(100)->isGreaterThanOrEqual(Money::fromCents(100)));
         $this->assertFalse(Money::fromCents(50)->isGreaterThanOrEqual(Money::fromCents(100)));
         $this->assertTrue(Money::fromCents(0)->isGreaterThanOrEqual(Money::fromCents(-10)));
         $this->assertTrue(Money::fromCents(0)->isGreaterThanOrEqual(Money::fromCents(0)));
@@ -121,7 +118,7 @@ final class MoneyTest extends TestCase
     {
         $this->assertTrue(Money::fromCents(50)->isLessThan(Money::fromCents(100)));
         $this->assertFalse(Money::fromCents(100)->isLessThan(Money::fromCents(50)));
-        $this->assertFalse(Money::fromCents(100)->isLessThan(Money::fromCents(100))); // igual não é menor
+        $this->assertFalse(Money::fromCents(100)->isLessThan(Money::fromCents(100)));
         $this->assertTrue(Money::fromCents(-10)->isLessThan(Money::fromCents(0)));
         $this->assertFalse(Money::fromCents(0)->isLessThan(Money::fromCents(-10)));
     }
@@ -129,7 +126,7 @@ final class MoneyTest extends TestCase
     public function test_is_less_than_or_equal_comparison(): void
     {
         $this->assertTrue(Money::fromCents(50)->isLessThanOrEqual(Money::fromCents(100)));
-        $this->assertTrue(Money::fromCents(100)->isLessThanOrEqual(Money::fromCents(100))); // ✅ igual também passa
+        $this->assertTrue(Money::fromCents(100)->isLessThanOrEqual(Money::fromCents(100)));
         $this->assertFalse(Money::fromCents(100)->isLessThanOrEqual(Money::fromCents(50)));
         $this->assertTrue(Money::fromCents(-10)->isLessThanOrEqual(Money::fromCents(0)));
         $this->assertTrue(Money::fromCents(0)->isLessThanOrEqual(Money::fromCents(0)));

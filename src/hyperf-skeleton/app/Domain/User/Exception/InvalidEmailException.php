@@ -8,8 +8,13 @@ use DomainException;
 
 final class InvalidEmailException extends DomainException
 {
+    public static function empty(): self
+    {
+        return new self('Email cannot be empty.');
+    }
+
     public static function invalidFormat(): self
     {
-        return new self('Invalid email format');
+        return new self('Invalid Email format.');
     }
 }
