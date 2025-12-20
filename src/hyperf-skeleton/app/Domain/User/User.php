@@ -100,7 +100,7 @@ final class User
     public function debitWallet(Money $amount): self
     {
         if (!$this->canSendMoney()) {
-            throw new UserCannotSendMoneyException();
+            throw UserCannotSendMoneyException::cannotSendMoney();
         }
 
         if (!$this->hasSufficientBalance($amount)) {

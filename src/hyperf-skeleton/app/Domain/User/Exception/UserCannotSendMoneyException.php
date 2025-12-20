@@ -8,7 +8,7 @@ use DomainException;
 
 final class UserCannotSendMoneyException extends DomainException
 {
-    public static function empty(): self
+    public static function cannotSendMoney(): self
     {
         return new self('This user type cannot send money.');
     }
