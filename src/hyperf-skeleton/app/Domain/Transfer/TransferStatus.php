@@ -4,20 +4,10 @@ declare(strict_types=1);
 
 namespace App\Domain\Transfer;
 
-enum TransferStatus
+enum TransferStatus: string
 {
-    case PENDING;
-    case AUTHORIZED;
-    case COMPLETED;
-    case FAILED;
-
-    public function getLabel(): string
-    {
-        return match ($this) {
-            self::PENDING => 'pending',
-            self::AUTHORIZED => 'authorized',
-            self::COMPLETED => 'completed',
-            self::FAILED => 'failed',
-        };
-    }
+    case PENDING = 'pending';
+    case AUTHORIZED = 'authorized';
+    case COMPLETED = 'completed';
+    case FAILED = 'failed';
 }

@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace App\Domain\User;
 
-enum DocumentType
+enum DocumentType: string
 {
-    case CPF;
-    case CNPJ;
+    case CPF = 'CPF';
+    case CNPJ = 'CNPJ';
 
     public function getLength(): int
     {
@@ -22,14 +22,6 @@ enum DocumentType
         return match ($this) {
             self::CPF => 'CPF',
             self::CNPJ => 'CNPJ',
-        };
-    }
-
-    public function getMask(): string
-    {
-        return match ($this) {
-            self::CPF => '###.###.###-##',
-            self::CNPJ => '##.###.###/####-##',
         };
     }
 }

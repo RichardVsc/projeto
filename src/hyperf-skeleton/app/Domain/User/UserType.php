@@ -4,15 +4,15 @@ declare(strict_types=1);
 
 namespace App\Domain\User;
 
-enum UserType
+enum UserType: string 
 {
-    case USER;
-    case MERCHANT;
+    case COMMON = 'COMMON';
+    case MERCHANT = 'MERCHANT';
 
     public function canSend(): bool
     {
         return match ($this) {
-            self::USER => true,
+            self::COMMON => true,
             self::MERCHANT => false,
         };
     }

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace HyperfTest\Domain\Money;
+namespace HyperfTest\Unit\Domain\Money;
 
 use App\Domain\Money\Money;
 use PHPUnit\Framework\TestCase;

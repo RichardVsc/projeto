@@ -1,6 +1,12 @@
 <?php
 
 declare(strict_types=1);
+
+use App\Domain\Service\AuthorizationServiceInterface;
+use App\Domain\Service\NotificationServiceInterface;
+use App\Infrastructure\Service\HttpAuthorizationService;
+use App\Infrastructure\Service\HttpNotificationService;
+
 /**
  * This file is part of Hyperf.
  *
@@ -10,4 +16,16 @@ declare(strict_types=1);
  * @license  https://github.com/hyperf/hyperf/blob/master/LICENSE
  */
 return [
+    AuthorizationServiceInterface::class => function () {
+        $client = new \GuzzleHttp\Client(['timeout' => 5]);
+        $url = 'https://util.devi.tools/api/v2/authorize';
+
+        return new HttpAuthorizationService($client, $url);
+    },
+    NotificationServiceInterface::class => function () {
+        $client = new \GuzzleHttp\Client(['timeout' => 5]);
+        $url = 'https://util.devi.tools/api/v1/notify';
+
+        return new HttpNotificationService($client, $url);
+    },
 ];

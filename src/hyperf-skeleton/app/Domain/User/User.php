@@ -67,6 +67,11 @@ final class User
         return $this->wallet;
     }
 
+    public function getPassword(): HashedPassword
+    {
+        return $this->password;
+    }
+
     public function verifyPassword(string $plainText): bool
     {
         return $this->password->verify($plainText);
