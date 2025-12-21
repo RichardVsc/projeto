@@ -74,7 +74,12 @@
         "post-autoload-dump": [
             "rm -rf runtime/container"
         ],
-        "test": "co-phpunit --prepend test/bootstrap.php --colors=always",
+        "test": "co-phpunit --testsuite Unit --prepend test/bootstrap.php --colors=always",
+        "integration-test": [
+            "@php bin/create-testing-database.php",
+            "co-phpunit --testsuite Integration --prepend test/bootstrap.php --colors=always"
+        ],
+        "test-all": "co-phpunit --prepend test/bootstrap.php --colors=always",
         "cs-fix": "php-cs-fixer fix $1",
         "cs-check": "php-cs-fixer check $1",
         "analyse": [
