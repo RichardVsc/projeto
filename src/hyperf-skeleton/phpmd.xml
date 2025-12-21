@@ -14,8 +14,16 @@
         <exclude name="TooManyPublicMethods"/>
     </rule>
     <rule ref="rulesets/design.xml"/>
-    <rule ref="rulesets/naming.xml"/>
+    <rule ref="rulesets/naming.xml">
+        <exclude name="ShortVariable"/>
+    </rule>
     <rule ref="rulesets/unusedcode.xml"/>
+
+    <rule ref="rulesets/naming.xml/ShortVariable">
+        <properties>
+            <property name="exceptions" value="id"/>
+        </properties>
+    </rule>
 
     <exclude-pattern>vendor</exclude-pattern>
     <exclude-pattern>runtime</exclude-pattern>
