@@ -63,6 +63,6 @@ final class HashedPassword
     {
         $info = password_get_info($hash);
 
-        return $info['algo'] !== 0;
+        return ! empty($info['algo']);
     }
 }
