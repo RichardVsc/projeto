@@ -1,6 +1,6 @@
 # Projeto de Plataforma de Pagamentos Simplificada
 
-Plataforma de pagamentos desenvolvida que permite transferências seguras entre usuários comuns e lojistas.
+Plataforma de pagamentos que permite transferências seguras entre usuários comuns e lojistas.
 
 ## 🧑‍💻 Tecnologias Utilizadas
 - **Hyperf 3.1**
