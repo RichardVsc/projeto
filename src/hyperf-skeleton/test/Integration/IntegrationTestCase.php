@@ -23,19 +23,19 @@ abstract class IntegrationTestCase extends TestCase
     /**
      * Test user UUIDs from seeders.
      */
-    protected const USER_JOAO_ID = '550e8400-e29b-41d4-a716-446655440001';      // COMMON, balance: 100000
-    protected const USER_LOJA_ID = '550e8400-e29b-41d4-a716-446655440002';      // MERCHANT, balance: 50000
-    protected const USER_MARIA_ID = '550e8400-e29b-41d4-a716-446655440003';     // COMMON, balance: 20000
-    protected const USER_PEDRO_ID = '550e8400-e29b-41d4-a716-446655440004';     // COMMON, balance: 0
+    protected const USER_JOAO_ID = '550e8400-e29b-41d4-a716-446655440001';
+    protected const USER_LOJA_ID = '550e8400-e29b-41d4-a716-446655440002';
+    protected const USER_MARIA_ID = '550e8400-e29b-41d4-a716-446655440003';
+    protected const USER_PEDRO_ID = '550e8400-e29b-41d4-a716-446655440004';
     protected const USER_INEXISTENTE_ID = '550e8400-e29b-41d4-a716-999999999999';
 
     /**
      * Initial balances from seeders (in cents).
      */
-    protected const BALANCE_JOAO = 100000;   // R$ 1.000,00
-    protected const BALANCE_LOJA = 50000;    // R$ 500,00
-    protected const BALANCE_MARIA = 20000;   // R$ 200,00
-    protected const BALANCE_PEDRO = 0;       // R$ 0,00
+    protected const BALANCE_JOAO = 100000;
+    protected const BALANCE_LOJA = 50000;
+    protected const BALANCE_MARIA = 20000;
+    protected const BALANCE_PEDRO = 0;
 
     protected function setUp(): void
     {
@@ -43,10 +43,8 @@ abstract class IntegrationTestCase extends TestCase
 
         $this->container = ApplicationContext::getContainer();
 
-        // Refresh database
         $this->refreshDatabase();
 
-        // Setup default mocks
         $this->setupDefaultMocks();
     }
 
@@ -145,11 +143,9 @@ abstract class IntegrationTestCase extends TestCase
         $amount = $payload['amount'] ?? null;
 
         try {
-            // Validate (same as controller does)
             $validator = $this->container->get(\App\Validators\Transfer\TransferControllerValidator::class);
             $validator->validate($payerId, $payeeId, $amount);
 
-            // Create command and handle
             $command = new \App\Application\UseCase\TransferMoney\TransferMoneyCommand(
                 payerId: (string) $payerId,
                 payeeId: (string) $payeeId,
@@ -219,15 +215,6 @@ abstract class IntegrationTestCase extends TestCase
                 'debug' => $e->getMessage(),
             ], 500);
         }
-    }
-
-    /**
-     * Setup the request context with payload data.
-     * @deprecated No longer needed since we call the handler directly
-     */
-    protected function setupRequestContext(array $payload): void
-    {
-        // Keep for backwards compatibility but not used anymore
     }
 
     /**
