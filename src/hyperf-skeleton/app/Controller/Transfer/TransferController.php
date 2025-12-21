@@ -8,16 +8,13 @@ use App\Application\UseCase\TransferMoney\Exception\UserNotFoundException;
 use App\Application\UseCase\TransferMoney\TransferMoneyCommand;
 use App\Application\UseCase\TransferMoney\TransferMoneyHandler;
 use App\Domain\Transfer\Exception\InvalidTransferException;
-use App\Domain\Transfer\TransferStatus;
 use App\Domain\User\Exception\InvalidUserIdException;
 use App\Domain\User\Exception\UserCannotSendMoneyException;
 use App\Domain\User\Exception\UserInsufficientFundsException;
-use App\Request\TransferRequest;
 use App\Validators\Exception\ValidationException;
 use App\Validators\Transfer\TransferControllerValidator;
 use Hyperf\HttpServer\Contract\RequestInterface;
 use Hyperf\HttpServer\Contract\ResponseInterface;
-use InvalidArgumentException;
 use Psr\Log\LoggerInterface;
 
 class TransferController

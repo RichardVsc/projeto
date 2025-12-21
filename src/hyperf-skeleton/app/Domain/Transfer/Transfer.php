@@ -25,6 +25,9 @@ final class Transfer
     private ?DateTimeImmutable $failedAt;
     private ?string $failureReason;
 
+    /**
+     * @SuppressWarnings(PHPMD.ExcessiveParameterList)
+     */
     private function __construct(
         TransferId $id,
         UserId $payerId,

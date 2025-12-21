@@ -9,7 +9,6 @@ use App\Domain\Money\Money;
 use App\Domain\Repository\TransferRepositoryInterface;
 use App\Domain\Repository\UserRepositoryInterface;
 use App\Domain\Service\AuthorizationServiceInterface;
-use App\Domain\Service\NotificationServiceInterface;
 use App\Domain\Transfer\Transfer;
 use App\Domain\Transfer\TransferId;
 use App\Domain\User\Exception\UserCannotSendMoneyException;
@@ -20,9 +19,7 @@ use App\Domain\Transfer\TransferRole;
 use App\Domain\Transfer\TransferStatus;
 use App\Domain\User\User;
 use App\Domain\User\UserId;
-use App\DTO\TransferNotificationData;
 use Psr\EventDispatcher\EventDispatcherInterface;
-use Psr\Log\LoggerInterface;
 
 final class TransferMoneyHandler
 {
