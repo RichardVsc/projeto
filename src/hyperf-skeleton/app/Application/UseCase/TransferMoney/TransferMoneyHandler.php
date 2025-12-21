@@ -16,6 +16,7 @@ use App\Domain\User\Exception\UserCannotSendMoneyException;
 use App\Domain\User\Exception\UserInsufficientFundsException;
 use App\Application\UseCase\TransferMoney\Exception\UserNotFoundException;
 use App\Domain\Transfer\TransferRole;
+use App\Domain\Transfer\TransferStatus;
 use App\Domain\User\User;
 use App\Domain\User\UserId;
 use Psr\Log\LoggerInterface;
@@ -37,7 +38,8 @@ final class TransferMoneyHandler
         $this->validateTransferRules($payer, $amount);
         $transfer = $this->createPendingTransfer($payer->getId(), $payee->getId(), $amount);
 
-        if (!$this->authorizeTransfer($transfer)) {
+        $transfer = $this->authorizeTransfer($transfer);
+        if ($transfer->getStatus() === TransferStatus::FAILED) {
             return $this->buildFailedResponse($transfer);
         }
 
@@ -100,20 +102,20 @@ final class TransferMoneyHandler
         return $transfer;
     }
 
-    private function authorizeTransfer(Transfer $transfer): bool
+    private function authorizeTransfer(Transfer $transfer): Transfer
     {
         $authorized = $this->authorizationService->authorize($transfer);
 
         if (!$authorized) {
             $failedTransfer = $transfer->fail('Authorization denied');
             $this->transferRepository->save($failedTransfer);
-            return false;
+            return $failedTransfer;
         }
 
         $authorizedTransfer = $transfer->authorize();
         $this->transferRepository->save($authorizedTransfer);
 
-        return true;
+        return $authorizedTransfer;
     }
 
     private function executeTransfer(User $payer, User $payee, Money $amount, Transfer $transfer): Transfer

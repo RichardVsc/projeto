@@ -11,14 +11,17 @@ RUN apk update && apk add --no-cache \
     autoconf \
     build-base \
     libtool \
-    pcre-dev
+    pcre-dev \
+    openssl \
+    openssl-dev
 
 RUN docker-php-ext-install pcntl pdo pdo_pgsql
 
 RUN pecl install redis && docker-php-ext-enable redis
 
-RUN printf "no\nno\nno\nno\nno\nno\nno\nno\nno\nno\nno\nno\nno\n" \
-    | pecl install swoole \
+RUN printf "no\nyes\nno\nno\nno\nno\nno\nno\nno\nno\nno\nno\nno\n" \
+    | pecl install swoole -- \
+        --enable-openssl \
     && docker-php-ext-enable swoole \
     && echo "swoole.use_shortname = Off" > /usr/local/etc/php/conf.d/swoole.ini
 

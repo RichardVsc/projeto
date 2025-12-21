@@ -20,6 +20,6 @@ final class InvalidTransferException extends DomainException
 
     public static function cannotTransferToSelf(): self
     {
-        return new self('payerId and payeeId cannot be the same.');
+        return new self('Cannot transfer to self.');
     }
 }
