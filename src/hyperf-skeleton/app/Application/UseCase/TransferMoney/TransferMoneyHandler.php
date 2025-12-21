@@ -29,8 +29,7 @@ final class TransferMoneyHandler
         private AuthorizationServiceInterface $authorizationService,
         private TransactionManagerInterface $transactionManager,
         private EventDispatcherInterface $eventDispatcher,
-    ) {
-    }
+    ) {}
 
     public function handle(TransferMoneyCommand $command): TransferMoneyResponse
     {
@@ -43,7 +42,7 @@ final class TransferMoneyHandler
             return $this->buildFailedResponse($transfer);
         }
 
-        $transfer = $this->executeTransfer($payer, $payee, $amount, $transfer);
+        $transfer = $this->executeTransferWithLock($payer, $payee, $amount, $transfer);
         $this->eventDispatcher->dispatch(
             TransferCompleted::now($transfer)
         );
@@ -120,9 +119,13 @@ final class TransferMoneyHandler
         return $authorizedTransfer;
     }
 
-    private function executeTransfer(User $payer, User $payee, Money $amount, Transfer $transfer): Transfer
+    private function executeTransferWithLock(User $payer, User $payee, Money $amount, Transfer $transfer): Transfer
     {
         return $this->transactionManager->transaction(function () use ($payer, $payee, $amount, $transfer) {
+            [$payer, $payee] = $this->acquireLocksInOrder($payer->getId(), $payee->getId());
+
+            $this->validateTransferRules($payer, $amount);
+            
             $updatedPayer = $payer->debitWallet($amount);
             $updatedPayee = $payee->creditWallet($amount);
 
@@ -134,6 +137,30 @@ final class TransferMoneyHandler
 
             return $completedTransfer;
         });
+    }
+
+    private function acquireLocksInOrder(UserId $payerId, UserId $payeeId): array
+    {
+        $ids = [
+            'payer' => $payerId,
+            'payee' => $payeeId,
+        ];
+
+        uasort($ids, fn(UserId $a, UserId $b) => strcmp($a->getValue(), $b->getValue()));
+
+        $lockedUsers = [];
+        foreach ($ids as $role => $id) {
+            $lockedUsers[$role] = $this->userRepository->findByIdForUpdate($id);
+
+            if ($lockedUsers[$role] === null) {
+                throw match ($role) {
+                    'payer' => UserNotFoundException::payerNotFound($id->getValue()),
+                    'payee' => UserNotFoundException::payeeNotFound($id->getValue()),
+                };
+            }
+        }
+
+        return [$lockedUsers['payer'], $lockedUsers['payee']];
     }
 
     private function buildFailedResponse(Transfer $transfer): TransferMoneyResponse

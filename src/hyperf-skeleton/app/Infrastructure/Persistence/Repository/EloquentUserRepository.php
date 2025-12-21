@@ -34,6 +34,20 @@ final class EloquentUserRepository implements UserRepositoryInterface
         return $this->hydrate($userModel);
     }
 
+    public function findByIdForUpdate(UserId $id): ?User
+    {
+        $userModel = UserModel::with('wallet')
+            ->where('id', $id->getValue())
+            ->lockForUpdate()
+            ->first();
+
+        if ($userModel === null) {
+            return null;
+        }
+
+        return $this->hydrate($userModel);
+    }
+
     public function save(User $user): void
     {
         UserModel::updateOrCreate(
