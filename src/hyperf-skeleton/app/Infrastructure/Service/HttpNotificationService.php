@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Infrastructure\Service;
 
 use App\Domain\Service\NotificationServiceInterface;
-use App\Domain\Transfer\Transfer;
+use App\DTO\TransferNotificationData;
 use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Exception\GuzzleException;
 
@@ -16,16 +16,16 @@ final class HttpNotificationService implements NotificationServiceInterface
         private string $notificationUrl
     ) {}
 
-    public function notify(Transfer $transfer): void
+    public function notify(TransferNotificationData $data): void
     {
         try {
             $this->client->request('POST', $this->notificationUrl, [
                 'json' => [
-                    'transfer_id' => $transfer->getId()->getValue(),
-                    'payer_id' => $transfer->getPayerId()->getValue(),
-                    'payee_id' => $transfer->getPayeeId()->getValue(),
-                    'amount' => $transfer->getAmount()->toInt(),
-                    'status' => $transfer->getStatus()->value,
+                    'transfer_id' => $data->transferId,
+                    'payer_id' => $data->payerId,
+                    'payee_id' => $data->payeeId,
+                    'amount' => $data->amount,
+                    'status' => $data->status,
                 ]
             ]);
         } catch (GuzzleException) {

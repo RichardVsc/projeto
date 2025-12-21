@@ -15,10 +15,13 @@ use App\Domain\Transfer\TransferId;
 use App\Domain\User\Exception\UserCannotSendMoneyException;
 use App\Domain\User\Exception\UserInsufficientFundsException;
 use App\Application\UseCase\TransferMoney\Exception\UserNotFoundException;
+use App\Domain\Transfer\Event\TransferCompleted;
 use App\Domain\Transfer\TransferRole;
 use App\Domain\Transfer\TransferStatus;
 use App\Domain\User\User;
 use App\Domain\User\UserId;
+use App\DTO\TransferNotificationData;
+use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\Log\LoggerInterface;
 
 final class TransferMoneyHandler
@@ -27,9 +30,8 @@ final class TransferMoneyHandler
         private UserRepositoryInterface $userRepository,
         private TransferRepositoryInterface $transferRepository,
         private AuthorizationServiceInterface $authorizationService,
-        private NotificationServiceInterface $notificationService,
         private TransactionManagerInterface $transactionManager,
-        private LoggerInterface $logger
+        private EventDispatcherInterface $eventDispatcher,
     ) {}
 
     public function handle(TransferMoneyCommand $command): TransferMoneyResponse
@@ -44,7 +46,9 @@ final class TransferMoneyHandler
         }
 
         $transfer = $this->executeTransfer($payer, $payee, $amount, $transfer);
-        $this->notifyTransfer($transfer);
+        $this->eventDispatcher->dispatch(
+            TransferCompleted::now($transfer)
+        );
 
         return $this->buildSuccessResponse($transfer);
     }
@@ -132,18 +136,6 @@ final class TransferMoneyHandler
 
             return $completedTransfer;
         });
-    }
-
-    private function notifyTransfer(Transfer $transfer): void
-    {
-        try {
-            $this->notificationService->notify($transfer);
-        } catch (\Throwable $e) {
-            $this->logger->warning('Failed to notify transfer', [
-                'transfer_id' => $transfer->getId()->getValue(),
-                'error' => $e->getMessage(),
-            ]);
-        }
     }
 
     private function buildFailedResponse(Transfer $transfer): TransferMoneyResponse

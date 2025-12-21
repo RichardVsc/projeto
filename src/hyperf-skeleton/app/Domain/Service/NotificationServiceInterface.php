@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Domain\Service;
 
-use App\Domain\Transfer\Transfer;
+use App\DTO\TransferNotificationData;
 
 interface NotificationServiceInterface
 {
-    public function notify(Transfer $transfer): void;
+    public function notify(TransferNotificationData $transfer): void;
 }
