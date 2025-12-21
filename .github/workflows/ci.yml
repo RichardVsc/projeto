@@ -1,0 +1,80 @@
+name: CI Pipeline
+
+on: [push, pull_request]
+
+defaults:
+  run:
+    working-directory: ./src
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    services:
+      postgres:
+        image: postgres:15
+        ports:
+          - 5432:5432
+        env:
+          POSTGRES_DB: hyperf_test
+          POSTGRES_USER: hyperf
+          POSTGRES_PASSWORD: secret
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+      
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: pdo_pgsql
+
+      - name: Install dependencies
+        run: composer install --no-interaction --prefer-dist --no-progress
+
+      - name: Create .env file
+        run: |
+          cp .env.example .env
+          sed -i 's/DB_HOST=.*/DB_HOST=localhost/' .env
+          sed -i 's/DB_PORT=.*/DB_PORT=5432/' .env
+          sed -i 's/DB_DATABASE=.*/DB_DATABASE=hyperf_test/' .env
+          sed -i 's/DB_USERNAME=.*/DB_USERNAME=hyperf/' .env
+          sed -i 's/DB_PASSWORD=.*/DB_PASSWORD=secret/' .env
+          sed -i 's/REDIS_HOST=.*/REDIS_HOST=localhost/' .env
+          sed -i 's/REDIS_PORT=.*/REDIS_PORT=6379/' .env
+
+      - name: Run migrations
+        run: php bin/hyperf.php migrate:fresh --force
+
+      - name: Run seeders
+        run: php bin/hyperf.php db:seed --force
+
+      - name: Run code style check
+        run: composer cs-check
+
+      - name: Run PHPStan
+        run: composer phpstan
+
+      - name: Run PHPMD
+        run: composer phpmd
+
+      - name: Run unit tests
+        run: composer test
+
+      - name: Run integration tests
+        run: composer integration-test
