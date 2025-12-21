@@ -79,7 +79,8 @@
         "cs-check": "php-cs-fixer check $1",
         "analyse": [
             "phpstan analyse --memory-limit 300M",
-            "phpmd app text phpmd.xml"
+            "phpmd app text phpmd.xml",
+            "php-cs-fixer check $1"
         ],
         "start": [
             "Composer\\Config::disableProcessTimeout",
