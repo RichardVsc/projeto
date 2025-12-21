@@ -7,9 +7,13 @@ namespace HyperfTest\Unit\Domain\Money;
 use App\Domain\Money\Money;
 use PHPUnit\Framework\TestCase;
 
+/**
+ * @internal
+ * @coversNothing
+ */
 final class MoneyTest extends TestCase
 {
-    public function test_can_be_created_from_cents(): void
+    public function testCanBeCreatedFromCents(): void
     {
         $positive = Money::fromCents(100);
         $zero = Money::fromCents(0);
@@ -20,23 +24,23 @@ final class MoneyTest extends TestCase
         $this->assertSame(-50, $negative->toInt());
     }
 
-    public function test_is_immutable(): void
+    public function testIsImmutable(): void
     {
         $original = Money::fromCents(100);
         $added = $original->add(Money::fromCents(50));
         $subtracted = $original->subtract(Money::fromCents(30));
 
         $this->assertSame(100, $original->toInt());
-        
+
         $this->assertSame(150, $added->toInt());
         $this->assertSame(70, $subtracted->toInt());
-        
+
         $this->assertNotSame($original, $added);
         $this->assertNotSame($original, $subtracted);
         $this->assertNotSame($added, $subtracted);
     }
 
-    public function test_can_identify_positive_zero_and_negative(): void
+    public function testCanIdentifyPositiveZeroAndNegative(): void
     {
         $positive = Money::fromCents(10);
         $zero = Money::fromCents(0);
@@ -55,7 +59,7 @@ final class MoneyTest extends TestCase
         $this->assertTrue($negative->isNegative());
     }
 
-    public function test_adds_money_correctly(): void
+    public function testAddsMoneyCorrectly(): void
     {
         $this->assertSame(150, Money::fromCents(100)->add(Money::fromCents(50))->toInt());
         $this->assertSame(50, Money::fromCents(0)->add(Money::fromCents(50))->toInt());
@@ -64,7 +68,7 @@ final class MoneyTest extends TestCase
         $this->assertSame(0, Money::fromCents(0)->add(Money::fromCents(0))->toInt());
     }
 
-    public function test_subtracts_money_correctly(): void
+    public function testSubtractsMoneyCorrectly(): void
     {
         $this->assertSame(50, Money::fromCents(100)->subtract(Money::fromCents(50))->toInt());
         $this->assertSame(-50, Money::fromCents(0)->subtract(Money::fromCents(50))->toInt());
@@ -73,7 +77,7 @@ final class MoneyTest extends TestCase
         $this->assertSame(0, Money::fromCents(0)->subtract(Money::fromCents(0))->toInt());
     }
 
-    public function test_handles_large_values(): void
+    public function testHandlesLargeValues(): void
     {
         $large = Money::fromCents(PHP_INT_MAX - 1);
         $result = $large->add(Money::fromCents(1));
@@ -84,7 +88,7 @@ final class MoneyTest extends TestCase
         $this->assertSame(PHP_INT_MIN, $resultNegative->toInt());
     }
 
-    public function test_equals_comparison(): void
+    public function testEqualsComparison(): void
     {
         $money100a = Money::fromCents(100);
         $money100b = Money::fromCents(100);
@@ -96,7 +100,7 @@ final class MoneyTest extends TestCase
         $this->assertTrue(Money::fromCents(-10)->equals(Money::fromCents(-10)));
     }
 
-    public function test_is_greater_than_comparison(): void
+    public function testIsGreaterThanComparison(): void
     {
         $this->assertTrue(Money::fromCents(100)->isGreaterThan(Money::fromCents(50)));
         $this->assertFalse(Money::fromCents(50)->isGreaterThan(Money::fromCents(100)));
@@ -105,7 +109,7 @@ final class MoneyTest extends TestCase
         $this->assertFalse(Money::fromCents(-10)->isGreaterThan(Money::fromCents(0)));
     }
 
-    public function test_is_greater_than_or_equal_comparison(): void
+    public function testIsGreaterThanOrEqualComparison(): void
     {
         $this->assertTrue(Money::fromCents(100)->isGreaterThanOrEqual(Money::fromCents(50)));
         $this->assertTrue(Money::fromCents(100)->isGreaterThanOrEqual(Money::fromCents(100)));
@@ -114,7 +118,7 @@ final class MoneyTest extends TestCase
         $this->assertTrue(Money::fromCents(0)->isGreaterThanOrEqual(Money::fromCents(0)));
     }
 
-    public function test_is_less_than_comparison(): void
+    public function testIsLessThanComparison(): void
     {
         $this->assertTrue(Money::fromCents(50)->isLessThan(Money::fromCents(100)));
         $this->assertFalse(Money::fromCents(100)->isLessThan(Money::fromCents(50)));
@@ -123,7 +127,7 @@ final class MoneyTest extends TestCase
         $this->assertFalse(Money::fromCents(0)->isLessThan(Money::fromCents(-10)));
     }
 
-    public function test_is_less_than_or_equal_comparison(): void
+    public function testIsLessThanOrEqualComparison(): void
     {
         $this->assertTrue(Money::fromCents(50)->isLessThanOrEqual(Money::fromCents(100)));
         $this->assertTrue(Money::fromCents(100)->isLessThanOrEqual(Money::fromCents(100)));
@@ -132,7 +136,7 @@ final class MoneyTest extends TestCase
         $this->assertTrue(Money::fromCents(0)->isLessThanOrEqual(Money::fromCents(0)));
     }
 
-    public function test_comparison_with_negative_values(): void
+    public function testComparisonWithNegativeValues(): void
     {
         $this->assertTrue(Money::fromCents(-100)->isLessThan(Money::fromCents(-50)));
         $this->assertFalse(Money::fromCents(-50)->isLessThan(Money::fromCents(-100)));

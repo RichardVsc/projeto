@@ -5,14 +5,18 @@ declare(strict_types=1);
 namespace HyperfTest\Unit\Domain\User;
 
 use App\Domain\Money\Money;
+use App\Domain\User\Exception\NegativeWalletBalanceException;
 use App\Domain\User\Wallet;
 use App\Domain\User\WalletId;
-use App\Domain\User\Exception\NegativeWalletBalanceException;
 use PHPUnit\Framework\TestCase;
 
+/**
+ * @internal
+ * @coversNothing
+ */
 final class WalletTest extends TestCase
 {
-    public function test_can_be_created_with_non_negative_balance(): void
+    public function testCanBeCreatedWithNonNegativeBalance(): void
     {
         $walletId = WalletId::generate();
 
@@ -25,7 +29,7 @@ final class WalletTest extends TestCase
         $this->assertTrue($wallet->getId()->equals($walletId));
     }
 
-    public function test_can_be_created_with_zero_balance(): void
+    public function testCanBeCreatedWithZeroBalance(): void
     {
         $walletId = WalletId::generate();
 
@@ -37,7 +41,7 @@ final class WalletTest extends TestCase
         $this->assertSame(0, $wallet->getBalance()->toInt());
     }
 
-    public function test_cannot_be_created_with_negative_balance(): void
+    public function testCannotBeCreatedWithNegativeBalance(): void
     {
         $this->expectException(NegativeWalletBalanceException::class);
 
@@ -48,7 +52,7 @@ final class WalletTest extends TestCase
         );
     }
 
-    public function test_can_check_if_has_sufficient_balance(): void
+    public function testCanCheckIfHasSufficientBalance(): void
     {
         $walletId = WalletId::generate();
         $wallet = new Wallet(
@@ -61,7 +65,7 @@ final class WalletTest extends TestCase
         $this->assertFalse($wallet->hasBalance(Money::fromCents(101)));
     }
 
-    public function test_returns_new_instance_with_added_balance(): void
+    public function testReturnsNewInstanceWithAddedBalance(): void
     {
         $walletId = WalletId::generate();
         $original = new Wallet(
@@ -80,7 +84,7 @@ final class WalletTest extends TestCase
         $this->assertTrue($original->getId()->equals($updated->getId()));
     }
 
-    public function test_can_add_zero_balance(): void
+    public function testCanAddZeroBalance(): void
     {
         $walletId = WalletId::generate();
         $wallet = new Wallet(
@@ -93,7 +97,7 @@ final class WalletTest extends TestCase
         $this->assertSame(100, $updated->getBalance()->toInt());
     }
 
-    public function test_returns_new_instance_with_deducted_balance(): void
+    public function testReturnsNewInstanceWithDeductedBalance(): void
     {
         $walletId = WalletId::generate();
         $original = new Wallet(
@@ -110,7 +114,7 @@ final class WalletTest extends TestCase
         $this->assertNotSame($original, $updated);
     }
 
-    public function test_cannot_deduct_more_than_available_balance(): void
+    public function testCannotDeductMoreThanAvailableBalance(): void
     {
         $walletId = WalletId::generate();
         $wallet = new Wallet(
@@ -123,7 +127,7 @@ final class WalletTest extends TestCase
         $wallet->withDeductedBalance(Money::fromCents(100));
     }
 
-    public function test_can_deduct_exact_balance(): void
+    public function testCanDeductExactBalance(): void
     {
         $walletId = WalletId::generate();
         $wallet = new Wallet(
@@ -136,7 +140,7 @@ final class WalletTest extends TestCase
         $this->assertSame(0, $updated->getBalance()->toInt());
     }
 
-    public function test_multiple_operations_maintain_immutability(): void
+    public function testMultipleOperationsMaintainImmutability(): void
     {
         $walletId = WalletId::generate();
         $wallet1 = new Wallet(

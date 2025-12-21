@@ -18,7 +18,8 @@ class SendTransferNotificationListener implements ListenerInterface
 {
     public function __construct(
         private LoggerInterface $logger
-    ) {}
+    ) {
+    }
 
     public function listen(): array
     {
@@ -29,7 +30,7 @@ class SendTransferNotificationListener implements ListenerInterface
 
     public function process(object $event): void
     {
-        if (!$event instanceof TransferCompleted) {
+        if (! $event instanceof TransferCompleted) {
             return;
         }
 

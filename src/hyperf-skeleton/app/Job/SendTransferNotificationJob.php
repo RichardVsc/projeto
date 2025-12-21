@@ -9,12 +9,14 @@ use App\DTO\TransferNotificationData;
 use Hyperf\AsyncQueue\Job;
 use Hyperf\Context\ApplicationContext;
 use Psr\Log\LoggerInterface;
+use Throwable;
 
 class SendTransferNotificationJob extends Job
 {
     public function __construct(
         private TransferNotificationData $data
-    ) {}
+    ) {
+    }
 
     public function handle(): void
     {
@@ -28,7 +30,7 @@ class SendTransferNotificationJob extends Job
             $logger->info('Transfer notification sent', [
                 'transfer_id' => $this->data->transferId,
             ]);
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             $logger->warning('Failed to send transfer notification', [
                 'transfer_id' => $this->data->transferId,
                 'error' => $e->getMessage(),

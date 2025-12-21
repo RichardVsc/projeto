@@ -8,12 +8,12 @@ use Hyperf\DbConnection\Model\Model;
 
 class TransferModel extends Model
 {
-    protected ?string $table = 'transfers';
-    
-    protected string $keyType = 'string';
-    
     public bool $incrementing = false;
-    
+
+    protected ?string $table = 'transfers';
+
+    protected string $keyType = 'string';
+
     protected array $fillable = [
         'id',
         'payer_id',
@@ -25,7 +25,7 @@ class TransferModel extends Model
         'completed_at',
         'failed_at',
     ];
-    
+
     protected array $casts = [
         'amount' => 'integer',
         'created_at' => 'datetime',

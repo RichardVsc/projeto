@@ -9,12 +9,18 @@ use App\Domain\User\Exception\InvalidDocumentNumberException;
 final class DocumentNumber
 {
     private string $value;
+
     private DocumentType $type;
 
     private function __construct(string $value, DocumentType $type)
     {
         $this->value = $value;
         $this->type = $type;
+    }
+
+    public function __toString(): string
+    {
+        return $this->value;
     }
 
     public static function cpf(string $value): self
@@ -27,7 +33,7 @@ final class DocumentNumber
 
         $cleanValue = preg_replace('/\D/', '', $trimmed);
 
-        if (!self::isValidCpf($cleanValue)) {
+        if (! self::isValidCpf($cleanValue)) {
             throw InvalidDocumentNumberException::invalidCpf($value);
         }
 
@@ -44,7 +50,7 @@ final class DocumentNumber
 
         $cleanValue = preg_replace('/\D/', '', $trimmed);
 
-        if (!self::isValidCnpj($cleanValue)) {
+        if (! self::isValidCnpj($cleanValue)) {
             throw InvalidDocumentNumberException::invalidCnpj($value);
         }
 
@@ -94,13 +100,13 @@ final class DocumentNumber
             return false;
         }
 
-        for ($t = 9; $t < 11; $t++) {
+        for ($t = 9; $t < 11; ++$t) {
             $sum = 0;
-            for ($i = 0; $i < $t; $i++) {
-                $sum += (int)$cpf[$i] * (($t + 1) - $i);
+            for ($i = 0; $i < $t; ++$i) {
+                $sum += (int) $cpf[$i] * (($t + 1) - $i);
             }
             $digit = ((10 * $sum) % 11) % 10;
-            if ((int)$cpf[$t] !== $digit) {
+            if ((int) $cpf[$t] !== $digit) {
                 return false;
             }
         }
@@ -117,25 +123,20 @@ final class DocumentNumber
         $lengths = [12, 13];
         $weights = [
             [5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2],
-            [6, 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2]
+            [6, 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2],
         ];
 
         foreach ($lengths as $index => $length) {
             $sum = 0;
-            for ($i = 0; $i < $length; $i++) {
-                $sum += (int)$cnpj[$i] * $weights[$index][$i];
+            for ($i = 0; $i < $length; ++$i) {
+                $sum += (int) $cnpj[$i] * $weights[$index][$i];
             }
             $digit = ($sum % 11) < 2 ? 0 : 11 - ($sum % 11);
-            if ((int)$cnpj[$length] !== $digit) {
+            if ((int) $cnpj[$length] !== $digit) {
                 return false;
             }
         }
 
         return true;
-    }
-
-    public function __toString(): string
-    {
-        return $this->value;
     }
 }

@@ -12,7 +12,8 @@ final class TransferMoneyResponse
         public readonly string $transferId,
         public readonly string $status,
         public readonly ?string $failureReason = null
-    ) {}
+    ) {
+    }
 
     public function getTransferId(): string
     {

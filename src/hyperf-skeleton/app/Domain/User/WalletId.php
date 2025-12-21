@@ -19,11 +19,16 @@ final class WalletId
             throw InvalidWalletIdException::empty();
         }
 
-        if (!Uuid::isValid($trimmed)) {
+        if (! Uuid::isValid($trimmed)) {
             throw InvalidWalletIdException::invalidFormat($trimmed);
         }
 
         $this->value = $trimmed;
+    }
+
+    public function __toString(): string
+    {
+        return $this->value;
     }
 
     public static function generate(): self
@@ -44,10 +49,5 @@ final class WalletId
     public function equals(WalletId $other): bool
     {
         return $this->value === $other->value;
-    }
-
-    public function __toString(): string
-    {
-        return $this->value;
     }
 }

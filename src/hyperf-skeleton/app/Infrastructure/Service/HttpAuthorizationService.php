@@ -14,7 +14,8 @@ final class HttpAuthorizationService implements AuthorizationServiceInterface
     public function __construct(
         private ClientInterface $client,
         private string $authorizationUrl
-    ) {}
+    ) {
+    }
 
     public function authorize(Transfer $transfer): bool
     {

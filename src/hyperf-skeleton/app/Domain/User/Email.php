@@ -18,11 +18,16 @@ final class Email
             throw InvalidEmailException::empty();
         }
 
-        if (!filter_var($trimmed, FILTER_VALIDATE_EMAIL)) {
+        if (! filter_var($trimmed, FILTER_VALIDATE_EMAIL)) {
             throw InvalidEmailException::invalidFormat($email);
         }
 
         $this->value = strtolower($trimmed);
+    }
+
+    public function __toString(): string
+    {
+        return $this->value;
     }
 
     public static function fromString(string $value): self
@@ -36,11 +41,6 @@ final class Email
     }
 
     public function getValue(): string
-    {
-        return $this->value;
-    }
-
-    public function __toString(): string
     {
         return $this->value;
     }

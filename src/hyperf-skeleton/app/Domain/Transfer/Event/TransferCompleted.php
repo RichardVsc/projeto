@@ -12,7 +12,8 @@ final class TransferCompleted
     public function __construct(
         private Transfer $transfer,
         private DateTimeImmutable $occurredAt
-    ) {}
+    ) {
+    }
 
     public static function now(Transfer $transfer): self
     {

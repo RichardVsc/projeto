@@ -12,8 +12,9 @@ use App\Infrastructure\Persistence\Repository\EloquentUserRepository;
 use App\Infrastructure\Persistence\TransactionManager;
 use App\Infrastructure\Service\HttpAuthorizationService;
 use App\Infrastructure\Service\HttpNotificationService;
+use GuzzleHttp\Client;
 
-/**
+/*
  * This file is part of Hyperf.
  *
  * @link     https://www.hyperf.io
@@ -27,13 +28,13 @@ return [
     TransactionManagerInterface::class => TransactionManager::class,
 
     AuthorizationServiceInterface::class => function () {
-        $client = new \GuzzleHttp\Client(['timeout' => 5]);
+        $client = new Client(['timeout' => 5]);
         $url = 'https://util.devi.tools/api/v2/authorize';
 
         return new HttpAuthorizationService($client, $url);
     },
     NotificationServiceInterface::class => function () {
-        $client = new \GuzzleHttp\Client(['timeout' => 5]);
+        $client = new Client(['timeout' => 5]);
         $url = 'https://util.devi.tools/api/v1/notify';
 
         return new HttpNotificationService($client, $url);

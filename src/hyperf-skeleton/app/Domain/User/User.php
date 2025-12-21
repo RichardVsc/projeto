@@ -12,11 +12,17 @@ use App\Domain\User\Exception\UserInsufficientFundsException;
 final class User
 {
     private UserId $id;
+
     private UserType $type;
+
     private string $name;
+
     private DocumentNumber $document;
+
     private Email $email;
+
     private HashedPassword $password;
+
     private Wallet $wallet;
 
     public function __construct(
@@ -30,7 +36,7 @@ final class User
     ) {
         $this->id = $id;
         $this->type = $type;
-        $this->name = $this->assertValidName($name);;
+        $this->name = $this->assertValidName($name);
         $this->document = $document;
         $this->email = $email;
         $this->password = $password;
@@ -104,11 +110,11 @@ final class User
 
     public function debitWallet(Money $amount): self
     {
-        if (!$this->canSendMoney()) {
+        if (! $this->canSendMoney()) {
             throw UserCannotSendMoneyException::cannotSendMoney();
         }
 
-        if (!$this->hasSufficientBalance($amount)) {
+        if (! $this->hasSufficientBalance($amount)) {
             throw UserInsufficientFundsException::notEnoughBalance();
         }
 

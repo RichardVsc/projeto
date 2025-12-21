@@ -15,14 +15,23 @@ use DateTimeImmutable;
 final class Transfer
 {
     private TransferId $id;
+
     private UserId $payerId;
+
     private UserId $payeeId;
+
     private Money $amount;
+
     private TransferStatus $status;
+
     private DateTimeImmutable $createdAt;
+
     private ?DateTimeImmutable $authorizedAt;
+
     private ?DateTimeImmutable $completedAt;
+
     private ?DateTimeImmutable $failedAt;
+
     private ?string $failureReason;
 
     /**
@@ -82,7 +91,7 @@ final class Transfer
 
     public function authorize(): self
     {
-        if (!$this->canBeAuthorized()) {
+        if (! $this->canBeAuthorized()) {
             throw TransferCannotBeAuthorizedException::notPending();
         }
 
@@ -102,7 +111,7 @@ final class Transfer
 
     public function complete(): self
     {
-        if (!$this->canBeCompleted()) {
+        if (! $this->canBeCompleted()) {
             throw TransferCannotBeCompletedException::notAuthorized();
         }
 
@@ -161,7 +170,7 @@ final class Transfer
 
     public function canBeFailed(): bool
     {
-        return !$this->isCompleted() && !$this->isFailed();
+        return ! $this->isCompleted() && ! $this->isFailed();
     }
 
     public function isPending(): bool

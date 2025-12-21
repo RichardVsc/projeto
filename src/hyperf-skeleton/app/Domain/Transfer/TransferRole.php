@@ -8,7 +8,7 @@ enum TransferRole
 {
     case PAYER;
     case PAYEE;
-    
+
     public function getLabel(): string
     {
         return match ($this) {

@@ -16,6 +16,7 @@ use App\Validators\Transfer\TransferControllerValidator;
 use Hyperf\HttpServer\Contract\RequestInterface;
 use Hyperf\HttpServer\Contract\ResponseInterface;
 use Psr\Log\LoggerInterface;
+use Throwable;
 
 class TransferController
 {
@@ -25,13 +26,14 @@ class TransferController
         private TransferMoneyHandler $handler,
         private TransferControllerValidator $validator,
         private LoggerInterface $logger
-    ) {}
+    ) {
+    }
 
     public function store()
     {
         $payerId = $this->request->input('payer_id');
         $payeeId = $this->request->input('payee_id');
-        $amount =  $this->request->input('amount');
+        $amount = $this->request->input('amount');
 
         try {
             $this->validator->validate($payerId, $payeeId, $amount);
@@ -50,7 +52,7 @@ class TransferController
                         'payer_id' => $payerId,
                         'payee_id' => $payeeId,
                         'amount' => $amount,
-                    ]
+                    ],
                 ])->withStatus(201);
             }
 
@@ -88,7 +90,7 @@ class TransferController
             return $this->response->json([
                 'error' => $e->getErrors(),
             ])->withStatus(400);
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             print_r($e->getMessage());
             $this->logger->error('Transfer failed', [
                 'exception' => get_class($e),

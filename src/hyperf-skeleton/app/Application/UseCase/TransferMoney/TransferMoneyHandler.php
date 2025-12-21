@@ -5,18 +5,18 @@ declare(strict_types=1);
 namespace App\Application\UseCase\TransferMoney;
 
 use App\Application\Service\TransactionManagerInterface;
+use App\Application\UseCase\TransferMoney\Exception\UserNotFoundException;
 use App\Domain\Money\Money;
 use App\Domain\Repository\TransferRepositoryInterface;
 use App\Domain\Repository\UserRepositoryInterface;
 use App\Domain\Service\AuthorizationServiceInterface;
+use App\Domain\Transfer\Event\TransferCompleted;
 use App\Domain\Transfer\Transfer;
 use App\Domain\Transfer\TransferId;
-use App\Domain\User\Exception\UserCannotSendMoneyException;
-use App\Domain\User\Exception\UserInsufficientFundsException;
-use App\Application\UseCase\TransferMoney\Exception\UserNotFoundException;
-use App\Domain\Transfer\Event\TransferCompleted;
 use App\Domain\Transfer\TransferRole;
 use App\Domain\Transfer\TransferStatus;
+use App\Domain\User\Exception\UserCannotSendMoneyException;
+use App\Domain\User\Exception\UserInsufficientFundsException;
 use App\Domain\User\User;
 use App\Domain\User\UserId;
 use Psr\EventDispatcher\EventDispatcherInterface;
@@ -29,7 +29,8 @@ final class TransferMoneyHandler
         private AuthorizationServiceInterface $authorizationService,
         private TransactionManagerInterface $transactionManager,
         private EventDispatcherInterface $eventDispatcher,
-    ) {}
+    ) {
+    }
 
     public function handle(TransferMoneyCommand $command): TransferMoneyResponse
     {
@@ -80,11 +81,11 @@ final class TransferMoneyHandler
 
     private function validateTransferRules(User $payer, Money $amount): void
     {
-        if (!$payer->canSendMoney()) {
+        if (! $payer->canSendMoney()) {
             throw UserCannotSendMoneyException::cannotSendMoney();
         }
 
-        if (!$payer->hasSufficientBalance($amount)) {
+        if (! $payer->hasSufficientBalance($amount)) {
             throw UserInsufficientFundsException::notEnoughBalance();
         }
     }
@@ -107,7 +108,7 @@ final class TransferMoneyHandler
     {
         $authorized = $this->authorizationService->authorize($transfer);
 
-        if (!$authorized) {
+        if (! $authorized) {
             $failedTransfer = $transfer->fail('Authorization denied');
             $this->transferRepository->save($failedTransfer);
             return $failedTransfer;

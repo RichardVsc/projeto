@@ -10,5 +10,6 @@ final class TransferMoneyCommand
         public readonly string $payerId,
         public readonly string $payeeId,
         public readonly int $amountInCents
-    ) {}
+    ) {
+    }
 }

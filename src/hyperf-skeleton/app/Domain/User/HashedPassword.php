@@ -17,7 +17,6 @@ final class HashedPassword
         $this->hash = $hash;
     }
 
-
     public static function fromPlainText(string $plainText): self
     {
         self::assertMinimumLength($plainText);
@@ -27,7 +26,7 @@ final class HashedPassword
 
     public static function fromHash(string $hash): self
     {
-        if (!self::isValidHash($hash)) {
+        if (! self::isValidHash($hash)) {
             throw InvalidHashedPasswordException::invalidFormat();
         }
 

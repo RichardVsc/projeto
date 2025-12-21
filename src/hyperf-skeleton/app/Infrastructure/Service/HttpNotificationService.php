@@ -14,7 +14,8 @@ final class HttpNotificationService implements NotificationServiceInterface
     public function __construct(
         private ClientInterface $client,
         private string $notificationUrl
-    ) {}
+    ) {
+    }
 
     public function notify(TransferNotificationData $data): void
     {
@@ -26,7 +27,7 @@ final class HttpNotificationService implements NotificationServiceInterface
                     'payee_id' => $data->payeeId,
                     'amount' => $data->amount,
                     'status' => $data->status,
-                ]
+                ],
             ]);
         } catch (GuzzleException) {
             // Silenciosamente falha pois handler já loga o erro

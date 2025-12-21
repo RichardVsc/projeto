@@ -6,13 +6,13 @@ namespace App\Validators\Transfer;
 
 use App\Validators\Exception\ValidationException;
 use Hyperf\Validation\Contract\ValidatorFactoryInterface;
-use InvalidArgumentException;
 
 final class TransferControllerValidator
 {
     public function __construct(
-        protected ValidatorFactoryInterface $validator
-    ) {}
+        private ValidatorFactoryInterface $validator
+    ) {
+    }
 
     public function validate(
         ?string $payerId,
@@ -22,7 +22,7 @@ final class TransferControllerValidator
         $data = [
             'payer_id' => $payerId,
             'payee_id' => $payeeId,
-            'amount'   => $amount,
+            'amount' => $amount,
         ];
 
         $validator = $this->validator->make($data, $this->rules(), $this->messages());
@@ -32,12 +32,12 @@ final class TransferControllerValidator
         }
     }
 
-    protected function rules(): array
+    private function rules(): array
     {
         return [
             'payer_id' => 'required|string|uuid',
             'payee_id' => 'required|string|uuid',
-            'amount'   => 'required|integer|min:1',
+            'amount' => 'required|integer|min:1',
         ];
     }
 
@@ -45,10 +45,10 @@ final class TransferControllerValidator
     {
         return [
             'required' => 'The :attribute field is required.',
-            'string'   => 'The :attribute must be a string.',
-            'uuid'     => 'The :attribute must be a valid UUID.',
-            'integer'  => 'The :attribute must be an integer.',
-            'min'      => 'The :attribute must be greater than zero.',
+            'string' => 'The :attribute must be a string.',
+            'uuid' => 'The :attribute must be a valid UUID.',
+            'integer' => 'The :attribute must be an integer.',
+            'min' => 'The :attribute must be greater than zero.',
         ];
     }
 }

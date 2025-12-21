@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 use Hyperf\Database\Seeders\Seeder;
 use Hyperf\DbConnection\Db;
-use Hyperf\Stringable\Str;
 
 use function Hyperf\Support\now;
 
@@ -12,8 +11,6 @@ class UserSeeder extends Seeder
 {
     /**
      * Run the database seeds.
-     *
-     * @return void
      */
     public function run(): void
     {

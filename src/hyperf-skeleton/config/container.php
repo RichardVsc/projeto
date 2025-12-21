@@ -5,7 +5,7 @@
  */
 
 declare(strict_types=1);
-/**
+/*
  * This file is part of Hyperf.
  *
  * @link     https://www.hyperf.io

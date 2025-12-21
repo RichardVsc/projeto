@@ -8,12 +8,12 @@ use Hyperf\DbConnection\Model\Model;
 
 class UserModel extends Model
 {
-    protected ?string $table = 'users';
-    
-    protected string $keyType = 'string';
-    
     public bool $incrementing = false;
-    
+
+    protected ?string $table = 'users';
+
+    protected string $keyType = 'string';
+
     protected array $fillable = [
         'id',
         'type',
@@ -25,14 +25,14 @@ class UserModel extends Model
     ];
 
     protected array $hidden = [
-        'password'
+        'password',
     ];
-    
+
     protected array $casts = [
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
     ];
-    
+
     public function wallet()
     {
         return $this->hasOne(WalletModel::class, 'user_id', 'id');

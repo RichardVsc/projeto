@@ -14,7 +14,8 @@ final class TransferNotificationData
         public readonly string $payeeId,
         public readonly int $amount,
         public readonly string $status,
-    ) {}
+    ) {
+    }
 
     public static function fromTransfer(Transfer $transfer): self
     {
