@@ -147,7 +147,7 @@ final class TransferMoneyHandler
             'payee' => $payeeId,
         ];
 
-        uasort($ids, fn (UserId $a, UserId $b) => strcmp($a->getValue(), $b->getValue()));
+        uasort($ids, fn (UserId $userIdA, UserId $userIdB) => strcmp($userIdA->getValue(), $userIdB->getValue()));
 
         $lockedUsers = [];
         foreach ($ids as $role => $id) {
