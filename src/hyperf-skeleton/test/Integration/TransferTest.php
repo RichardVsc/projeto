@@ -4,6 +4,14 @@ declare(strict_types=1);
 
 namespace HyperfTest\Integration;
 
+use App\Application\Service\TransactionManagerInterface;
+use App\Application\UseCase\TransferMoney\TransferMoneyCommand;
+use App\Application\UseCase\TransferMoney\TransferMoneyHandler;
+use App\Domain\Repository\TransferRepositoryInterface;
+use App\Domain\Repository\UserRepositoryInterface;
+use App\Domain\Service\AuthorizationServiceInterface;
+use Psr\EventDispatcher\EventDispatcherInterface;
+
 /**
  * Integration tests for the Transfer endpoint.
  *
@@ -16,12 +24,12 @@ final class TransferTest extends IntegrationTestCase
      * @test
      * Test 1: User COMMON can transfer to MERCHANT successfully.
      */
-    public function it_should_transfer_successfully_from_user_to_merchant(): void
+    public function itShouldTransferSuccessfullyFromUserToMerchant(): void
     {
         $payload = [
             'payer_id' => self::USER_JOAO_ID,
             'payee_id' => self::USER_LOJA_ID,
-            'amount' => 10000
+            'amount' => 10000,
         ];
 
         $initialPayerBalance = $this->getWalletBalance(self::USER_JOAO_ID);
@@ -60,7 +68,7 @@ final class TransferTest extends IntegrationTestCase
      * @test
      * Test 2: User COMMON can transfer to another User COMMON successfully.
      */
-    public function it_should_transfer_successfully_from_user_to_user(): void
+    public function itShouldTransferSuccessfullyFromUserToUser(): void
     {
         $payload = [
             'payer_id' => self::USER_JOAO_ID,
@@ -91,7 +99,7 @@ final class TransferTest extends IntegrationTestCase
      * @test
      * Test 3: MERCHANT cannot send money.
      */
-    public function it_should_fail_when_merchant_tries_to_send_money(): void
+    public function itShouldFailWhenMerchantTriesToSendMoney(): void
     {
         $payload = [
             'payer_id' => self::USER_LOJA_ID,
@@ -131,7 +139,7 @@ final class TransferTest extends IntegrationTestCase
      * @test
      * Test 4: User with insufficient funds cannot transfer.
      */
-    public function it_should_fail_when_user_has_insufficient_funds(): void
+    public function itShouldFailWhenUserHasInsufficientFunds(): void
     {
         $payload = [
             'payer_id' => self::USER_PEDRO_ID,
@@ -155,7 +163,7 @@ final class TransferTest extends IntegrationTestCase
      * @test
      * Test 5: Transfer fails when payer does not exist.
      */
-    public function it_should_fail_when_payer_not_found(): void
+    public function itShouldFailWhenPayerNotFound(): void
     {
         $payload = [
             'payer_id' => self::USER_INEXISTENTE_ID,
@@ -173,7 +181,7 @@ final class TransferTest extends IntegrationTestCase
      * @test
      * Test 6: Transfer fails when payee does not exist.
      */
-    public function it_should_fail_when_payee_not_found(): void
+    public function itShouldFailWhenPayeeNotFound(): void
     {
         $payload = [
             'payer_id' => self::USER_JOAO_ID,
@@ -191,7 +199,7 @@ final class TransferTest extends IntegrationTestCase
      * @test
      * Test 7: User cannot transfer to themselves.
      */
-    public function it_should_fail_when_transferring_to_self(): void
+    public function itShouldFailWhenTransferringToSelf(): void
     {
         $payload = [
             'payer_id' => self::USER_JOAO_ID,
@@ -215,7 +223,7 @@ final class TransferTest extends IntegrationTestCase
      * @test
      * Test 8: Transfer fails when external authorization is denied.
      */
-    public function it_should_fail_when_authorization_is_denied(): void
+    public function itShouldFailWhenAuthorizationIsDenied(): void
     {
         $this->mockAuthorizationService(false);
 
@@ -228,15 +236,15 @@ final class TransferTest extends IntegrationTestCase
         $initialPayerBalance = $this->getWalletBalance(self::USER_JOAO_ID);
         $initialPayeeBalance = $this->getWalletBalance(self::USER_LOJA_ID);
 
-        $handler = new \App\Application\UseCase\TransferMoney\TransferMoneyHandler(
-            $this->container->get(\App\Domain\Repository\UserRepositoryInterface::class),
-            $this->container->get(\App\Domain\Repository\TransferRepositoryInterface::class),
-            $this->container->get(\App\Domain\Service\AuthorizationServiceInterface::class),
-            $this->container->get(\App\Application\Service\TransactionManagerInterface::class),
-            $this->container->get(\Psr\EventDispatcher\EventDispatcherInterface::class)
+        $handler = new TransferMoneyHandler(
+            $this->container->get(UserRepositoryInterface::class),
+            $this->container->get(TransferRepositoryInterface::class),
+            $this->container->get(AuthorizationServiceInterface::class),
+            $this->container->get(TransactionManagerInterface::class),
+            $this->container->get(EventDispatcherInterface::class)
         );
 
-        $command = new \App\Application\UseCase\TransferMoney\TransferMoneyCommand(
+        $command = new TransferMoneyCommand(
             payerId: $payload['payer_id'],
             payeeId: $payload['payee_id'],
             amountInCents: $payload['amount']
@@ -244,7 +252,7 @@ final class TransferTest extends IntegrationTestCase
 
         $result = $handler->handle($command);
 
-        $response = \HyperfTest\Integration\TestResponse::fromArray(
+        $response = TestResponse::fromArray(
             $result->isSuccessful()
                 ? [
                     'status' => 'completed',
@@ -274,13 +282,11 @@ final class TransferTest extends IntegrationTestCase
         $this->assertEquals($initialPayeeBalance, $this->getWalletBalance(self::USER_LOJA_ID));
     }
 
-
-
     /**
      * @test
      * Test 9: Validation fails when amount is zero.
      */
-    public function it_should_fail_validation_when_amount_is_zero(): void
+    public function itShouldFailValidationWhenAmountIsZero(): void
     {
         $payload = [
             'payer_id' => self::USER_JOAO_ID,
@@ -297,7 +303,7 @@ final class TransferTest extends IntegrationTestCase
      * @test
      * Test 10: Validation fails when UUID is invalid.
      */
-    public function it_should_fail_validation_when_uuid_is_invalid(): void
+    public function itShouldFailValidationWhenUuidIsInvalid(): void
     {
         $payload = [
             'payer_id' => 'invalid-uuid',

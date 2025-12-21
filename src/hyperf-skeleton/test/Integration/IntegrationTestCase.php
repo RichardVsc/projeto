@@ -4,13 +4,28 @@ declare(strict_types=1);
 
 namespace HyperfTest\Integration;
 
+use App\Application\UseCase\TransferMoney\Exception\UserNotFoundException;
+use App\Application\UseCase\TransferMoney\TransferMoneyCommand;
+use App\Application\UseCase\TransferMoney\TransferMoneyHandler;
 use App\Domain\Service\AuthorizationServiceInterface;
 use App\Domain\Service\NotificationServiceInterface;
+use App\Domain\Transfer\Exception\InvalidTransferException;
+use App\Domain\User\Exception\InvalidUserIdException;
+use App\Domain\User\Exception\UserCannotSendMoneyException;
+use App\Domain\User\Exception\UserInsufficientFundsException;
+use App\Validators\Exception\ValidationException;
+use App\Validators\Transfer\TransferControllerValidator;
 use Hyperf\Context\ApplicationContext;
+use Hyperf\Contract\ApplicationInterface;
 use Hyperf\DbConnection\Db;
+use Hyperf\Di\Container;
 use Mockery;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
+use Symfony\Component\Console\Application;
+use Symfony\Component\Console\Input\ArrayInput;
+use Symfony\Component\Console\Output\NullOutput;
+use Throwable;
 
 /**
  * Base class for integration tests.
@@ -18,24 +33,31 @@ use Psr\Container\ContainerInterface;
  */
 abstract class IntegrationTestCase extends TestCase
 {
-    protected ContainerInterface $container;
-
     /**
      * Test user UUIDs from seeders.
      */
     protected const USER_JOAO_ID = '550e8400-e29b-41d4-a716-446655440001';
+
     protected const USER_LOJA_ID = '550e8400-e29b-41d4-a716-446655440002';
+
     protected const USER_MARIA_ID = '550e8400-e29b-41d4-a716-446655440003';
+
     protected const USER_PEDRO_ID = '550e8400-e29b-41d4-a716-446655440004';
+
     protected const USER_INEXISTENTE_ID = '550e8400-e29b-41d4-a716-999999999999';
 
     /**
      * Initial balances from seeders (in cents).
      */
     protected const BALANCE_JOAO = 100000;
+
     protected const BALANCE_LOJA = 50000;
+
     protected const BALANCE_MARIA = 20000;
+
     protected const BALANCE_PEDRO = 0;
+
+    protected ContainerInterface $container;
 
     protected function setUp(): void
     {
@@ -68,14 +90,14 @@ abstract class IntegrationTestCase extends TestCase
      */
     protected function runCommand(string $command): void
     {
-        /** @var \Symfony\Component\Console\Application $application */
-        $application = $this->container->get(\Hyperf\Contract\ApplicationInterface::class);
-        
-        $input = new \Symfony\Component\Console\Input\ArrayInput([
+        /** @var Application $application */
+        $application = $this->container->get(ApplicationInterface::class);
+
+        $input = new ArrayInput([
             'command' => $command,
             '--force' => true,
         ]);
-        $output = new \Symfony\Component\Console\Output\NullOutput();
+        $output = new NullOutput();
 
         $application->setAutoExit(false);
         $application->run($input, $output);
@@ -116,25 +138,24 @@ abstract class IntegrationTestCase extends TestCase
 
     /**
      * Rebind a service in the container.
-     * 
+     *
      * @param string $abstract The interface/class name
      * @param mixed $concrete The instance to bind
      */
     protected function rebindInContainer(string $abstract, mixed $concrete): void
     {
-        /** @var \Hyperf\Di\Container $container */
+        /** @var Container $container */
         $container = $this->container;
         $container->set($abstract, $concrete);
     }
 
     /**
      * Make a POST request to /transfer endpoint.
-     * 
+     *
      * Instead of calling the controller directly (which requires HTTP context),
      * we call the handler and validator directly and simulate the controller logic.
      *
      * @param array $payload The transfer payload
-     * @return TestResponse
      */
     protected function postTransfer(array $payload): TestResponse
     {
@@ -143,16 +164,16 @@ abstract class IntegrationTestCase extends TestCase
         $amount = $payload['amount'] ?? null;
 
         try {
-            $validator = $this->container->get(\App\Validators\Transfer\TransferControllerValidator::class);
+            $validator = $this->container->get(TransferControllerValidator::class);
             $validator->validate($payerId, $payeeId, $amount);
 
-            $command = new \App\Application\UseCase\TransferMoney\TransferMoneyCommand(
+            $command = new TransferMoneyCommand(
                 payerId: (string) $payerId,
                 payeeId: (string) $payeeId,
                 amountInCents: (int) $amount,
             );
 
-            $handler = $this->container->get(\App\Application\UseCase\TransferMoney\TransferMoneyHandler::class);
+            $handler = $this->container->get(TransferMoneyHandler::class);
             $result = $handler->handle($command);
 
             if ($result->isSuccessful()) {
@@ -172,43 +193,36 @@ abstract class IntegrationTestCase extends TestCase
                 'transfer_id' => $result->getTransferId(),
                 'reason' => $result->getFailureReason(),
             ], 422);
-
-        } catch (\App\Application\UseCase\TransferMoney\Exception\UserNotFoundException $e) {
+        } catch (UserNotFoundException $e) {
             return TestResponse::fromArray([
                 'status' => 'failed',
                 'error' => $e->getMessage(),
             ], 404);
-
-        } catch (\App\Domain\User\Exception\InvalidUserIdException $e) {
+        } catch (InvalidUserIdException $e) {
             return TestResponse::fromArray([
                 'status' => 'failed',
                 'error' => $e->getMessage(),
             ], 400);
-
-        } catch (\App\Domain\User\Exception\UserCannotSendMoneyException $e) {
+        } catch (UserCannotSendMoneyException $e) {
             return TestResponse::fromArray([
                 'status' => 'failed',
                 'error' => $e->getMessage(),
             ], 403);
-
-        } catch (\App\Domain\User\Exception\UserInsufficientFundsException $e) {
+        } catch (UserInsufficientFundsException $e) {
             return TestResponse::fromArray([
                 'status' => 'failed',
                 'error' => $e->getMessage(),
             ], 422);
-
-        } catch (\App\Domain\Transfer\Exception\InvalidTransferException $e) {
+        } catch (InvalidTransferException $e) {
             return TestResponse::fromArray([
                 'status' => 'failed',
                 'error' => $e->getMessage(),
             ], 422);
-
-        } catch (\App\Validators\Exception\ValidationException $e) {
+        } catch (ValidationException $e) {
             return TestResponse::fromArray([
                 'error' => $e->getErrors(),
             ], 400);
-
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             return TestResponse::fromArray([
                 'status' => 'failed',
                 'error' => 'Internal server error',
@@ -231,7 +245,7 @@ abstract class IntegrationTestCase extends TestCase
         $this->assertTrue(
             $query->exists(),
             sprintf(
-                "Failed asserting that table [%s] has record matching: %s",
+                'Failed asserting that table [%s] has record matching: %s',
                 $table,
                 json_encode($data)
             )
@@ -252,7 +266,7 @@ abstract class IntegrationTestCase extends TestCase
         $this->assertFalse(
             $query->exists(),
             sprintf(
-                "Failed asserting that table [%s] does NOT have record matching: %s",
+                'Failed asserting that table [%s] does NOT have record matching: %s',
                 $table,
                 json_encode($data)
             )
@@ -276,7 +290,7 @@ abstract class IntegrationTestCase extends TestCase
             $expectedCount,
             $actualCount,
             sprintf(
-                "Failed asserting that table [%s] has %d records. Actual: %d",
+                'Failed asserting that table [%s] has %d records. Actual: %d',
                 $table,
                 $expectedCount,
                 $actualCount

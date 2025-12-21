@@ -14,7 +14,9 @@ use Psr\Http\Message\ResponseInterface;
 class TestResponse
 {
     private ?ResponseInterface $response;
+
     private ?array $decodedJson = null;
+
     private int $statusCode;
 
     public function __construct(?ResponseInterface $response = null, int $statusCode = 200, ?array $json = null)
@@ -56,7 +58,7 @@ class TestResponse
         if ($this->response) {
             return (string) $this->response->getBody();
         }
-        
+
         return json_encode($this->decodedJson ?? []);
     }
 
@@ -87,7 +89,7 @@ class TestResponse
             $status,
             $this->getStatusCode(),
             sprintf(
-                "Expected status code [%d] but received [%d]. Response: %s",
+                'Expected status code [%d] but received [%d]. Response: %s',
                 $status,
                 $this->getStatusCode(),
                 $this->getContent()
@@ -156,14 +158,14 @@ class TestResponse
             Assert::assertArrayHasKey(
                 $key,
                 $responseData,
-                sprintf("Response JSON does not contain key [%s]", $key)
+                sprintf('Response JSON does not contain key [%s]', $key)
             );
 
             Assert::assertEquals(
                 $value,
                 $responseData[$key],
                 sprintf(
-                    "Response JSON key [%s] does not match. Expected: %s, Got: %s",
+                    'Response JSON key [%s] does not match. Expected: %s, Got: %s',
                     $key,
                     json_encode($value),
                     json_encode($responseData[$key])
@@ -186,7 +188,7 @@ class TestResponse
                 Assert::assertArrayHasKey(
                     $key,
                     $data,
-                    sprintf("Response JSON does not contain key [%s]", $key)
+                    sprintf('Response JSON does not contain key [%s]', $key)
                 );
 
                 $this->assertJsonStructure($value, $data[$key]);
@@ -194,7 +196,7 @@ class TestResponse
                 Assert::assertArrayHasKey(
                     $value,
                     $data,
-                    sprintf("Response JSON does not contain key [%s]", $value)
+                    sprintf('Response JSON does not contain key [%s]', $value)
                 );
             }
         }
@@ -213,7 +215,7 @@ class TestResponse
             $expected,
             $actual,
             sprintf(
-                "Response JSON path [%s] does not match. Expected: %s, Got: %s",
+                'Response JSON path [%s] does not match. Expected: %s, Got: %s',
                 $path,
                 json_encode($expected),
                 json_encode($actual)
@@ -231,7 +233,7 @@ class TestResponse
         Assert::assertArrayHasKey(
             $key,
             $this->json(),
-            sprintf("Response JSON does not contain key [%s]", $key)
+            sprintf('Response JSON does not contain key [%s]', $key)
         );
 
         return $this;
@@ -260,11 +262,11 @@ class TestResponse
     }
 }
 
-/**
+/*
  * Helper function similar to Laravel's data_get.
  */
-if (!function_exists('data_get')) {
-    function data_get(mixed $target, string|array|null $key, mixed $default = null): mixed
+if (! function_exists('data_get')) {
+    function data_get(mixed $target, array|string|null $key, mixed $default = null): mixed
     {
         if ($key === null) {
             return $target;
