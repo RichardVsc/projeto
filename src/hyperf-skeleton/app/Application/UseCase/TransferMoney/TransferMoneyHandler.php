@@ -29,7 +29,8 @@ final class TransferMoneyHandler
         private AuthorizationServiceInterface $authorizationService,
         private TransactionManagerInterface $transactionManager,
         private EventDispatcherInterface $eventDispatcher,
-    ) {}
+    ) {
+    }
 
     public function handle(TransferMoneyCommand $command): TransferMoneyResponse
     {
@@ -125,7 +126,7 @@ final class TransferMoneyHandler
             [$payer, $payee] = $this->acquireLocksInOrder($payer->getId(), $payee->getId());
 
             $this->validateTransferRules($payer, $amount);
-            
+
             $updatedPayer = $payer->debitWallet($amount);
             $updatedPayee = $payee->creditWallet($amount);
 
@@ -146,7 +147,7 @@ final class TransferMoneyHandler
             'payee' => $payeeId,
         ];
 
-        uasort($ids, fn(UserId $a, UserId $b) => strcmp($a->getValue(), $b->getValue()));
+        uasort($ids, fn (UserId $a, UserId $b) => strcmp($a->getValue(), $b->getValue()));
 
         $lockedUsers = [];
         foreach ($ids as $role => $id) {
