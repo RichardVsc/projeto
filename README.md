@@ -181,16 +181,23 @@ DB_CHARSET=utf8
 ```bash
 php bin/hyperf.php migrate:fresh --seed
 ```
-8. Inicie a aplicação utilizando:
+
+8. Gere a documentação da API
+```bash
+composer docs
+``` 
+
+9. Inicie a aplicação utilizando:
 ```bash
 composer start
 ```
 
 ## 📚 Endpoints Disponíveis
 
-| Método | Endpoint          | Descrição                          |
+| Método | Endpoint          | Descrição                           |
 |--------|-------------------|-------------------------------------|
-| POST   | /transfer     | Realiza uma transferência          |
+| GET    | /docs             | Documentação da API (Swagger)       |
+| POST   | /transfer         | Realiza uma transferência           |
 ---
 
 ## 🧪 Testes e Análise de Código
