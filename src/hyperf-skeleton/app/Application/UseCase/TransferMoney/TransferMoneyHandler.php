@@ -43,7 +43,7 @@ final class TransferMoneyHandler
             return $this->buildFailedResponse($transfer);
         }
 
-        $transfer = $this->executeTransferWithLock($payer, $payee, $amount, $transfer);
+        $transfer = $this->executeTransferWithLock($amount, $transfer);
         $this->eventDispatcher->dispatch(
             TransferCompleted::now($transfer)
         );
@@ -120,21 +120,18 @@ final class TransferMoneyHandler
         return $authorizedTransfer;
     }
 
-    private function executeTransferWithLock(User $payer, User $payee, Money $amount, Transfer $transfer): Transfer
+    private function executeTransferWithLock(Money $amount, Transfer $transfer): Transfer
     {
-        return $this->transactionManager->transaction(function () use ($payer, $payee, $amount, $transfer) {
-            $users = $this->userRepository->findManyByIdsForUpdate([
-                'payer' => $payer->getId(),
-                'payee' => $payee->getId(),
-            ]);
+        return $this->transactionManager->transaction(function () use ($amount, $transfer) {
+            $pair = $this->userRepository->findPairForUpdate(
+                $transfer->getPayerId(),
+                $transfer->getPayeeId()
+            );
 
-            $payer = $users['payer'] ?? throw UserNotFoundException::payerNotFound($payer->getId()->getValue());
-            $payee = $users['payee'] ?? throw UserNotFoundException::payeeNotFound($payee->getId()->getValue());
+            $this->validateTransferRules($pair->payer, $amount);
 
-            $this->validateTransferRules($payer, $amount);
-
-            $updatedPayer = $payer->debitWallet($amount);
-            $updatedPayee = $payee->creditWallet($amount);
+            $updatedPayer = $pair->payer->debitWallet($amount);
+            $updatedPayee = $pair->payee->creditWallet($amount);
 
             $this->userRepository->save($updatedPayer);
             $this->userRepository->save($updatedPayee);

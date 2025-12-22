@@ -13,7 +13,7 @@ interface UserRepositoryInterface
 
     public function findByIdForUpdate(UserId $id): ?User;
 
-    public function findManyByIdsForUpdate(array $ids): array;
+    public function findPairForUpdate(UserId $payerId, UserId $payeeId): LockedUserPair;
 
     public function save(User $user): void;
 }

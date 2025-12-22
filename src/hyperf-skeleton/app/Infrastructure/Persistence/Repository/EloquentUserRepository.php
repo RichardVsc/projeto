@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace App\Infrastructure\Persistence\Repository;
 
+use App\Application\UseCase\TransferMoney\Exception\UserNotFoundException;
 use App\Domain\Money\Money;
+use App\Domain\Repository\LockedUserPair;
 use App\Domain\Repository\UserRepositoryInterface;
 use App\Domain\User\DocumentNumber;
 use App\Domain\User\DocumentType;
@@ -48,17 +50,24 @@ final class EloquentUserRepository implements UserRepositoryInterface
         return $this->hydrate($userModel);
     }
 
-    public function findManyByIdsForUpdate(array $ids): array
+    public function findPairForUpdate(UserId $payerId, UserId $payeeId): LockedUserPair
     {
-        $sorted = $ids;
-        uasort($sorted, fn (UserId $userIdA, UserId $userIdB) => strcmp($userIdA->getValue(), $userIdB->getValue()));
+        $ids = ['payer' => $payerId, 'payee' => $payeeId];
+        uasort($ids, fn (UserId $userIdA, UserId $userIdB) => strcmp($userIdA->getValue(), $userIdB->getValue()));
 
         $users = [];
-        foreach ($sorted as $key => $id) {
-            $users[$key] = $this->findByIdForUpdate($id);
+        foreach ($ids as $role => $id) {
+            $users[$role] = $this->findByIdForUpdate($id);
+
+            if ($users[$role] === null) {
+                throw match ($role) {
+                    'payer' => UserNotFoundException::payerNotFound($id->getValue()),
+                    'payee' => UserNotFoundException::payeeNotFound($id->getValue()),
+                };
+            }
         }
 
-        return $users;
+        return new LockedUserPair($users['payer'], $users['payee']);
     }
 
     public function save(User $user): void
