@@ -48,6 +48,19 @@ final class EloquentUserRepository implements UserRepositoryInterface
         return $this->hydrate($userModel);
     }
 
+    public function findManyByIdsForUpdate(array $ids): array
+    {
+        $sorted = $ids;
+        uasort($sorted, fn (UserId $userIdA, UserId $userIdB) => strcmp($userIdA->getValue(), $userIdB->getValue()));
+
+        $users = [];
+        foreach ($sorted as $key => $id) {
+            $users[$key] = $this->findByIdForUpdate($id);
+        }
+
+        return $users;
+    }
+
     public function save(User $user): void
     {
         UserModel::updateOrCreate(

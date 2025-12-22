@@ -123,7 +123,13 @@ final class TransferMoneyHandler
     private function executeTransferWithLock(User $payer, User $payee, Money $amount, Transfer $transfer): Transfer
     {
         return $this->transactionManager->transaction(function () use ($payer, $payee, $amount, $transfer) {
-            [$payer, $payee] = $this->acquireLocksInOrder($payer->getId(), $payee->getId());
+            $users = $this->userRepository->findManyByIdsForUpdate([
+                'payer' => $payer->getId(),
+                'payee' => $payee->getId(),
+            ]);
+
+            $payer = $users['payer'] ?? throw UserNotFoundException::payerNotFound($payer->getId()->getValue());
+            $payee = $users['payee'] ?? throw UserNotFoundException::payeeNotFound($payee->getId()->getValue());
 
             $this->validateTransferRules($payer, $amount);
 
@@ -138,30 +144,6 @@ final class TransferMoneyHandler
 
             return $completedTransfer;
         });
-    }
-
-    private function acquireLocksInOrder(UserId $payerId, UserId $payeeId): array
-    {
-        $ids = [
-            'payer' => $payerId,
-            'payee' => $payeeId,
-        ];
-
-        uasort($ids, fn (UserId $userIdA, UserId $userIdB) => strcmp($userIdA->getValue(), $userIdB->getValue()));
-
-        $lockedUsers = [];
-        foreach ($ids as $role => $id) {
-            $lockedUsers[$role] = $this->userRepository->findByIdForUpdate($id);
-
-            if ($lockedUsers[$role] === null) {
-                throw match ($role) {
-                    'payer' => UserNotFoundException::payerNotFound($id->getValue()),
-                    'payee' => UserNotFoundException::payeeNotFound($id->getValue()),
-                };
-            }
-        }
-
-        return [$lockedUsers['payer'], $lockedUsers['payee']];
     }
 
     private function buildFailedResponse(Transfer $transfer): TransferMoneyResponse
