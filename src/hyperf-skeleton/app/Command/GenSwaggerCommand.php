@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace App\Command;
 
+use Exception;
 use Hyperf\Command\Annotation\Command;
 use Hyperf\Command\Command as HyperfCommand;
+use OpenApi\Generator;
 
 #[Command]
 class GenSwaggerCommand extends HyperfCommand
@@ -24,14 +26,14 @@ class GenSwaggerCommand extends HyperfCommand
     public function handle()
     {
         try {
-            $openapi = \OpenApi\Generator::scan([
+            $openapi = Generator::scan([
                 BASE_PATH . '/app/Swagger',
                 BASE_PATH . '/app/Controller',
             ]);
 
             file_put_contents(BASE_PATH . '/swagger-api.json', $openapi->toJson());
             $this->line('Swagger gerado com sucesso!', 'info');
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->line('Erro: ' . $e->getMessage(), 'error');
         }
     }

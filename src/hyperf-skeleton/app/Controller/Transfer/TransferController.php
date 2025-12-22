@@ -15,9 +15,9 @@ use App\Validators\Exception\ValidationException;
 use App\Validators\Transfer\TransferControllerValidator;
 use Hyperf\HttpServer\Contract\RequestInterface;
 use Hyperf\HttpServer\Contract\ResponseInterface;
+use OpenApi\Attributes as OA;
 use Psr\Log\LoggerInterface;
 use Throwable;
-use OpenApi\Attributes as OA;
 
 class TransferController
 {
@@ -27,7 +27,8 @@ class TransferController
         private TransferMoneyHandler $handler,
         private TransferControllerValidator $validator,
         private LoggerInterface $logger
-    ) {}
+    ) {
+    }
 
     #[OA\Post(
         path: '/transfer',
