@@ -260,6 +260,27 @@ Você pode testar a rota de transferência da API usando ferramentas como cURL o
       }     
    ```
 
+- Autorizacao negada
+   ```bash
+      curl -X POST http://localhost:9502/transfer \
+            -H "Content-Type: application/json" \
+            -d '{
+                "payer_id": "550e8400-e29b-41d4-a716-446655440001",
+                "payee_id": "550e8400-e29b-41d4-a716-446655440003",
+                "amount": 10000
+        }'
+   ```
+
+   Resposta esperada:
+   - `Status 422 Unprocessable Entity`
+   ```json
+      {
+        "status": "failed",
+         "transfer_id": "uuid-gerado",
+         "reason": "Authorization denied.",
+      }     
+   ```
+
 - Merchant tentando enviar
    ```bash
       curl -X POST http://localhost:9502/transfer \
