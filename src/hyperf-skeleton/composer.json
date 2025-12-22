@@ -88,6 +88,7 @@
             "phpmd app text phpmd.xml",
             "php-cs-fixer check $1"
         ],
+        "docs": "php bin/hyperf.php gen:swagger",
         "start": [
             "Composer\\Config::disableProcessTimeout",
             "php ./bin/hyperf.php start"

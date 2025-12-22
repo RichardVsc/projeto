@@ -13,4 +13,5 @@ use Hyperf\HttpServer\Router\Router;
 
 Router::addRoute(['GET', 'POST', 'HEAD'], '/', 'App\Controller\IndexController@index');
 
+Router::get('/docs', 'App\Controller\Swagger\SwaggerController@index');
 Router::post('/transfer', 'App\Controller\Transfer\TransferController@store');

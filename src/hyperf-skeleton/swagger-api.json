@@ -1,0 +1,304 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "API de Transferências",
+        "description": "API para realizar transferências financeiras entre usuários",
+        "version": "1.0.0"
+    },
+    "servers": [
+        {
+            "url": "http://localhost:9502",
+            "description": "Servidor local"
+        }
+    ],
+    "paths": {
+        "/transfer": {
+            "post": {
+                "tags": [
+                    "Transfers"
+                ],
+                "summary": "Realizar transferência de dinheiro",
+                "description": "Transfere um valor em centavos de um usuário (payer) para outro (payee). Usuários do tipo Common podem enviar dinheiro, enquanto Merchants apenas recebem.",
+                "operationId": "a0c0823511fa1dc9e209eac186a435db",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "payer_id",
+                                    "payee_id",
+                                    "amount"
+                                ],
+                                "properties": {
+                                    "payer_id": {
+                                        "description": "UUID do pagador (deve ser um usuário do tipo Common)",
+                                        "type": "string",
+                                        "format": "uuid",
+                                        "example": "550e8400-e29b-41d4-a716-446655440001"
+                                    },
+                                    "payee_id": {
+                                        "description": "UUID do beneficiário (pode ser Common ou Merchant)",
+                                        "type": "string",
+                                        "format": "uuid",
+                                        "example": "550e8400-e29b-41d4-a716-446655440002"
+                                    },
+                                    "amount": {
+                                        "description": "Valor em centavos (deve ser maior que zero)",
+                                        "type": "integer",
+                                        "minimum": 1,
+                                        "example": 10000
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Transferência realizada com sucesso",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "completed"
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "transfer_id": {
+                                                    "type": "string",
+                                                    "format": "uuid",
+                                                    "example": "123e4567-e89b-12d3-a456-426614174000"
+                                                },
+                                                "payer_id": {
+                                                    "type": "string",
+                                                    "format": "uuid",
+                                                    "example": "550e8400-e29b-41d4-a716-446655440001"
+                                                },
+                                                "payee_id": {
+                                                    "type": "string",
+                                                    "format": "uuid",
+                                                    "example": "550e8400-e29b-41d4-a716-446655440002"
+                                                },
+                                                "amount": {
+                                                    "type": "integer",
+                                                    "example": 10000
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                },
+                                "example": {
+                                    "status": "completed",
+                                    "data": {
+                                        "transfer_id": "123e4567-e89b-12d3-a456-426614174000",
+                                        "payer_id": "550e8400-e29b-41d4-a716-446655440001",
+                                        "payee_id": "550e8400-e29b-41d4-a716-446655440002",
+                                        "amount": 10000
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Erro de validação (UUID inválido ou amount inválido)",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "failed"
+                                        },
+                                        "error": {
+                                            "oneOf": [
+                                                {
+                                                    "type": "string",
+                                                    "example": "Invalid user ID format"
+                                                },
+                                                {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "string"
+                                                    },
+                                                    "example": [
+                                                        "The payer_id must be a valid UUID."
+                                                    ]
+                                                }
+                                            ]
+                                        }
+                                    },
+                                    "type": "object"
+                                },
+                                "examples": {
+                                    "invalid_uuid": {
+                                        "summary": "UUID inválido",
+                                        "value": {
+                                            "status": "failed",
+                                            "error": [
+                                                "The payer_id must be a valid UUID."
+                                            ]
+                                        }
+                                    },
+                                    "invalid_amount": {
+                                        "summary": "Amount inválido",
+                                        "value": {
+                                            "status": "failed",
+                                            "error": [
+                                                "The amount must be greater than zero."
+                                            ]
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Merchant tentando enviar dinheiro",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "failed"
+                                        },
+                                        "error": {
+                                            "type": "string",
+                                            "example": "This user type cannot send money."
+                                        }
+                                    },
+                                    "type": "object"
+                                },
+                                "example": {
+                                    "status": "failed",
+                                    "error": "This user type cannot send money."
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Usuário não encontrado",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "failed"
+                                        },
+                                        "error": {
+                                            "type": "string",
+                                            "example": "Payer 00000000-0000-0000-0000-000000000000 was not found."
+                                        }
+                                    },
+                                    "type": "object"
+                                },
+                                "example": {
+                                    "status": "failed",
+                                    "error": "Payer 00000000-0000-0000-0000-000000000000 was not found."
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Falha na transferência (saldo insuficiente, autorização negada ou transferência para si mesmo)",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "oneOf": [
+                                        {
+                                            "properties": {
+                                                "status": {
+                                                    "type": "string"
+                                                },
+                                                "error": {
+                                                    "type": "string"
+                                                }
+                                            },
+                                            "type": "object"
+                                        },
+                                        {
+                                            "properties": {
+                                                "status": {
+                                                    "type": "string"
+                                                },
+                                                "transfer_id": {
+                                                    "type": "string",
+                                                    "format": "uuid"
+                                                },
+                                                "reason": {
+                                                    "type": "string"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    ]
+                                },
+                                "examples": {
+                                    "insufficient_funds": {
+                                        "summary": "Saldo insuficiente",
+                                        "value": {
+                                            "status": "failed",
+                                            "error": "User does not have enough balance."
+                                        }
+                                    },
+                                    "authorization_denied": {
+                                        "summary": "Autorização negada",
+                                        "value": {
+                                            "status": "failed",
+                                            "transfer_id": "123e4567-e89b-12d3-a456-426614174000",
+                                            "reason": "Authorization denied."
+                                        }
+                                    },
+                                    "transfer_to_self": {
+                                        "summary": "Transferência para si mesmo",
+                                        "value": {
+                                            "status": "failed",
+                                            "error": "Cannot transfer to self."
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Erro interno do servidor",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "failed"
+                                        },
+                                        "error": {
+                                            "type": "string",
+                                            "example": "Internal server error"
+                                        }
+                                    },
+                                    "type": "object"
+                                },
+                                "example": {
+                                    "status": "failed",
+                                    "error": "Internal server error"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "tags": [
+        {
+            "name": "Transfers",
+            "description": "Transfers"
+        }
+    ]
+}
