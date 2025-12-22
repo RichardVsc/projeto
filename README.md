@@ -10,6 +10,7 @@ Plataforma de pagamentos que permite transferências seguras entre usuários com
 - **Docker** & **Docker Compose**
 
 ## 🏗️ Arquitetura
+<img width="908" height="671" alt="image" src="https://github.com/user-attachments/assets/bb657adc-fe33-4d50-952b-a732a4642492" />
 
 Este projeto segue **Clean Architecture** com **Domain-Driven Design (DDD)**:
 
