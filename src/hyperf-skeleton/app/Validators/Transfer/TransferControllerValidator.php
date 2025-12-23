@@ -7,7 +7,7 @@ namespace App\Validators\Transfer;
 use App\Validators\Exception\ValidationException;
 use Hyperf\Validation\Contract\ValidatorFactoryInterface;
 
-final class TransferControllerValidator
+final class TransferControllerValidator implements TransferControllerValidatorInterface
 {
     public function __construct(
         private ValidatorFactoryInterface $validator

@@ -21,7 +21,7 @@ use App\Domain\User\User;
 use App\Domain\User\UserId;
 use Psr\EventDispatcher\EventDispatcherInterface;
 
-final class TransferMoneyHandler
+final class TransferMoneyHandler implements TransferMoneyHandlerInterface
 {
     public function __construct(
         private UserRepositoryInterface $userRepository,

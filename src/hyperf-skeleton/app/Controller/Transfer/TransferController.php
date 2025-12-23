@@ -6,13 +6,13 @@ namespace App\Controller\Transfer;
 
 use App\Application\UseCase\TransferMoney\Exception\UserNotFoundException;
 use App\Application\UseCase\TransferMoney\TransferMoneyCommand;
-use App\Application\UseCase\TransferMoney\TransferMoneyHandler;
+use App\Application\UseCase\TransferMoney\TransferMoneyHandlerInterface;
 use App\Domain\Transfer\Exception\InvalidTransferException;
 use App\Domain\User\Exception\InvalidUserIdException;
 use App\Domain\User\Exception\UserCannotSendMoneyException;
 use App\Domain\User\Exception\UserInsufficientFundsException;
 use App\Validators\Exception\ValidationException;
-use App\Validators\Transfer\TransferControllerValidator;
+use App\Validators\Transfer\TransferControllerValidatorInterface;
 use Hyperf\HttpServer\Contract\RequestInterface;
 use Hyperf\HttpServer\Contract\ResponseInterface;
 use OpenApi\Attributes as OA;
@@ -24,8 +24,8 @@ class TransferController
     public function __construct(
         private RequestInterface $request,
         private ResponseInterface $response,
-        private TransferMoneyHandler $handler,
-        private TransferControllerValidator $validator,
+        private TransferMoneyHandlerInterface $handler,
+        private TransferControllerValidatorInterface $validator,
         private LoggerInterface $logger
     ) {
     }

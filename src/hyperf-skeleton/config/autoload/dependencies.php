@@ -3,6 +3,8 @@
 declare(strict_types=1);
 
 use App\Application\Service\TransactionManagerInterface;
+use App\Application\UseCase\TransferMoney\TransferMoneyHandler;
+use App\Application\UseCase\TransferMoney\TransferMoneyHandlerInterface;
 use App\Domain\Repository\TransferRepositoryInterface;
 use App\Domain\Repository\UserRepositoryInterface;
 use App\Domain\Service\AuthorizationServiceInterface;
@@ -12,6 +14,8 @@ use App\Infrastructure\Persistence\Repository\EloquentUserRepository;
 use App\Infrastructure\Persistence\TransactionManager;
 use App\Infrastructure\Service\HttpAuthorizationService;
 use App\Infrastructure\Service\HttpNotificationService;
+use App\Validators\Transfer\TransferControllerValidator;
+use App\Validators\Transfer\TransferControllerValidatorInterface;
 use GuzzleHttp\Client;
 
 /*
@@ -26,6 +30,8 @@ return [
     UserRepositoryInterface::class => EloquentUserRepository::class,
     TransferRepositoryInterface::class => EloquentTransferRepository::class,
     TransactionManagerInterface::class => TransactionManager::class,
+    TransferMoneyHandlerInterface::class => TransferMoneyHandler::class,
+    TransferControllerValidatorInterface::class => TransferControllerValidator::class,
 
     AuthorizationServiceInterface::class => function () {
         $client = new Client(['timeout' => 5]);
