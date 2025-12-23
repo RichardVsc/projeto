@@ -433,9 +433,9 @@ composer test-all
 
 ### 🧪 Cobertura de Testes
 
-- **83 testes automatizados**
+- **92 testes automatizados**
   - 10 testes de integração
-  - 73 testes unitários
+  - 82 testes unitários
 
 
 ### Análise Estática de Código
