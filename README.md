@@ -141,7 +141,7 @@ Certifique-se de que você tem o seguinte instalado:
 
 1. Clone este repositório e entre na pasta do projeto:
 ```bash
-git clone https://github.com/RichardVsc/projeto.git && cd project
+git clone https://github.com/RichardVsc/projeto.git && cd projeto
 ```
 
 2. Suba os containers com Docker:
